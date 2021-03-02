@@ -5,29 +5,29 @@
   "scripts": {
     "start": "node ./bin/www"
   },
-  "description" : "Photohub is a platform that users can view, share and comment on their photos.",
-  "keywords" : [
-    "photo", 
-    "nodejs", 
-    "express", 
+  "description": "Photohub is a platform that users can view, share and comment on their photos.",
+  "keywords": [
+    "photo",
+    "nodejs",
+    "express",
     "mongodb"
   ],
-  "main" : "index.js",
-  "author" : ["Qiqi Chen", "Ziqing Mao"],
-  "license" : "MIT",
-  "repository" : {
-    "type" : "git",
-    "url" : "undefined"
+  "main": "index.js",
+  "author": "Qiqi Chen, Ziqing Mao",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "undefined"
   },
   "dependencies": {
-    "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
-    "express": "^4.16.4",
-    "morgan": "~1.9.1"
+    "express": "^4.16.4"
   },
   "devDependencies": {
+    "cookie-parser": "^1.4.5",
     "eslint": "^7.21.0",
     "eslint-config-prettier": "^8.1.0",
+    "morgan": "^1.9.1",
     "nodemon": "^2.0.7",
     "prettier": "^2.2.1"
   }
