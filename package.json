@@ -17,11 +17,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "undefined"
+    "url": "git@github.com:Ziqing19/PhotoHub.git"
   },
   "dependencies": {
     "debug": "~2.6.9",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "mongodb": "^3.6.4"
   },
   "devDependencies": {
     "cookie-parser": "^1.4.5",
