@@ -2,10 +2,12 @@ const express = require("express");
 const router = express.Router();
 
 const ObjectId = require("mongodb").ObjectID;
+const fs = require("fs");
 
 const findDocuments = require("../db/findDocuments");
 const insertDocuments = require("../db/insertDocument");
 const updateDocuments = require("../db/updateDocuments");
+const deleteDocuments = require("../db/deleteDocuments");
 
 const getClient = require("../db/getClient");
 let client;
@@ -59,6 +61,22 @@ router.post("/upload-image", async (req, res) => {
     res.redirect("/");
   } catch (e) {
     console.log("Error ", e);
+    res.status(400).send({ err: e });
+  } finally {
+    client.close();
+    console.log("Connection closed.");
+  }
+});
+
+router.post("/delete-image", async (req, res) => {
+  const url = req.body;
+  try {
+    client = await getClient();
+    await deleteDocuments(client, "Images", url);
+    const filepath = __dirname + "/../public/" + url.url;
+    fs.unlink(filepath, () => res.send({ status: true }));
+  } catch (e) {
+    console.log(e);
     res.status(400).send({ err: e });
   } finally {
     client.close();

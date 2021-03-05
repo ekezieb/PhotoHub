@@ -8,10 +8,29 @@
 const renderBlock = (image) => {
   console.log(image.url);
   const block = document.createElement("div");
+  const del = document.createElement("button");
   const img = document.createElement("img");
   const comments = document.createElement("div");
   const comment0 = document.createElement("p");
   const comment1 = document.createElement("p");
+
+  del.addEventListener("click", async () => {
+    try {
+      const resRaw = await fetch("/delete-image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url: image.url }),
+      });
+      const res = await resRaw.json();
+      console.log(res);
+      document.querySelector("#timeline").removeChild(block);
+    } catch (e) {
+      console.log("Err ", e);
+    }
+  });
+  block.appendChild(del);
 
   img.setAttribute("src", image.url);
   img.setAttribute("width", "50px");
@@ -40,17 +59,4 @@ document.querySelector("#temp").addEventListener("click", async () => {
   const resRaw = await fetch("/images");
   const res = await resRaw.json();
   renderTimeline(res);
-});
-
-// upload an image
-document.querySelector("#upload").addEventListener("click", async () => {
-  const resRaw = await fetch("/upload-image", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ key: "value" }),
-  });
-  const res = await resRaw.json();
-  console.log("Upload", res);
 });
