@@ -6,5 +6,8 @@ Photohub is a platform that users can view, share and comment on their photos.
 
 - clone the repo
 - `npm install`
-- `nodemon ./app.js`
-- It will show "Got image" that indicates Ajax runs smoothly
+- `npm start`
+- visit `localhost:3000` 
+- Click on the timeline button
+- try uploading a photo
+- Click on the timeline button again
