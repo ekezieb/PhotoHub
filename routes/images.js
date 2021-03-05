@@ -56,7 +56,6 @@ router.post("/upload-image", async (req, res) => {
       { _id: ObjectId(id) },
       { $set: data }
     );
-    console.log("here");
     await file.mv(filepath);
     res.redirect("/");
   } catch (e) {

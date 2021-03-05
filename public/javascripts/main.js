@@ -33,6 +33,7 @@ const renderBlock = (image) => {
   block.appendChild(del);
 
   img.setAttribute("src", image.url);
+  img.setAttribute("alt", "user_photo");
   img.setAttribute("width", "50px");
   img.setAttribute("height", "50px");
   block.appendChild(img);
@@ -62,19 +63,33 @@ document.querySelector("#temp").addEventListener("click", async () => {
 });
 
 // fetch user information
+// User
+// - user_name
+// - password
+// - description
+// - profile_photo
 const renderUser = async () => {
   try {
     const name = document.querySelector("#user-name");
     const des = document.querySelector("#description");
+    const img_div = document.querySelector("#profile-photo");
+    const img = document.createElement("img");
     const resRaw = await fetch("/get-user", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ user_name: "Alice" }),
+      // TODO use user name
+      body: JSON.stringify({ user_name: "Bob" }),
     });
     const res = await resRaw.json();
     console.log(res);
+
+    img.setAttribute("src", res.profile_photo);
+    img.setAttribute("alt", "profile_photo");
+    img.setAttribute("width", "50px");
+    img.setAttribute("height", "50px");
+    img_div.appendChild(img);
     name.innerHTML = res.user_name;
     des.innerHTML = res.description;
   } catch (e) {
@@ -82,4 +97,4 @@ const renderUser = async () => {
   }
 };
 
-renderUser();
+renderUser().then();

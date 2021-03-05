@@ -31,6 +31,7 @@ router.post("/signup", async (req, res) => {
       user_name: req.body.user_name,
       password: req.body.password,
       description: "",
+      profile_photo: "images/profile-photo/default.jpg",
     };
     const result = await findDocuments(client, "Users", {
       user_name: data.user_name,
@@ -41,6 +42,31 @@ router.post("/signup", async (req, res) => {
     } else {
       await insertDocuments(client, "Users", data);
       res.redirect("/");
+    }
+  } catch (e) {
+    console.log("Error", e);
+    res.status(400).send({ err: e });
+  } finally {
+    client.close();
+    console.log("Connection closed");
+  }
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    client = await getClient();
+    console.log("Logging in");
+    const query = {
+      user_name: req.body.user_name,
+      password: req.body.password,
+    };
+    const result = await findDocuments(client, "Users", query);
+    if (result === {}) {
+      // TODO use correct code
+      res.status(400).send({ err: "Incorrect user name or password." });
+    } else {
+      // TODO
+      res.send({ status: "login succeed" });
     }
   } catch (e) {
     console.log("Error", e);
@@ -87,4 +113,38 @@ router.post("/update-description", async (req, res) => {
   }
 });
 
+router.post("/update-profile-photo", async (req, res) => {
+  let file, filename, filepath;
+
+  if (!req.files.profile_photo) {
+    return res.status(400).send("No files were uploaded.");
+  }
+  file = req.files.profile_photo;
+
+  try {
+    client = await getClient();
+    console.log("Inserting new document");
+    // TODO use user's name
+    filename = "Alice" + ".jpg";
+    filepath = __dirname + "/../public/images/profile-photo/" + filename;
+    const data = {
+      profile_photo: "images/profile-photo/" + filename,
+    };
+    await updateDocuments(
+      client,
+      "Users",
+      // TODO
+      { user_name: "Alice" },
+      { $set: data }
+    );
+    await file.mv(filepath);
+    res.redirect("/");
+  } catch (e) {
+    console.log("Error", e);
+    res.status(400).send({ err: e });
+  } finally {
+    client.close();
+    console.log("Connection closed");
+  }
+});
 module.exports = router;

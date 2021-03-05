@@ -76,11 +76,13 @@
     <p>Trend</p>
     
     <!--TIMELINE-->
+    <h3>Timeline</h3>
     <button id="temp">Show Timeline</button>
     <div id="timeline"></div>
     <br>
     
     <!--UPLOAD-->
+    <h3>Upload image</h3>
     <form
       action="/upload-image"
       method="post"
@@ -91,26 +93,47 @@
     </form>
     <br>
 
+    <!--USER INFORMATION-->
+    <h3>User Information</h3>
+    <div>
+      <div id="profile-photo"></div>
+      <p style="font-weight: bold">Name: </p><p id="user-name"></p>
+      <p style="font-weight: bold">Description: </p><p id="description"></p>
+    </div>
+    <br>
+    
+    <!--DESCRIPTION-->
+    <h3>Update Description</h3>
+    <form action="/update-description" method="post">
+      <label>New: <input type="text" name="description"></label>
+      <button type="submit">Update</button>
+    </form>
+    <br>
+    
+    <!--UPDATE PROFILE PHOTO-->
+    <h3>Update Profile Photo</h3>
+    <form action="/update-profile-photo" method="post" enctype="multipart/form-data">
+      <label>Profile Photo: <input type="file" name="profile_photo"></label>
+      <button type="submit">Update</button>
+    </form>
+    <br>
+
     <!--SIGNUP-->
+    <h3>Sign Up</h3>
     <form action="/signup" method="post">
       <label>Username: <input type="text" name="user_name"></label>
       <label>Password: <input type="password" name="password"></label>
       <button type="submit">Submit</button>
     </form>
     <br>
-
-    <!--User-->
-    <div>
-      <p>Name: </p><span id="user-name"></span>
-      <p>Description: </p><span id="description"></span>
-    </div>
-    <br>
     
-    <!--DESCRIPTION-->
-    <form action="/update-description" method="post">
-      <label>New: <input type="text" name="description"></label>
-      <button type="submit">Update</button>
+    <!--LOGIN-->
+    <form action="/login" method="post">
+      <label>Username: <input type="text" name="user_name"></label>
+      <label>Password: <input type="password" name="password"></label>
+      <button type="submit">Submit</button>
     </form>
+    
     <script src="javascripts/main.js"></script>
   </body>
 </html>
