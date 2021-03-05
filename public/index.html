@@ -78,6 +78,7 @@
     <!--TIMELINE-->
     <button id="temp">Show Timeline</button>
     <div id="timeline"></div>
+    <br>
     
     <!--UPLOAD-->
     <form
@@ -85,11 +86,10 @@
       method="post"
       enctype="multipart/form-data"
     >
-      <label class="form-label"
-      >File: <input class="form-control" type="file" name="image"
-      /></label>
-      <button type="submit" class="btn btn-primary">Upload</button>
+      <label>File: <input type="file" name="image"/></label>
+      <button type="submit">Upload</button>
     </form>
+    <br>
 
     <!--SIGNUP-->
     <form action="/signup" method="post">
@@ -97,7 +97,20 @@
       <label>Password: <input type="password" name="password"></label>
       <button type="submit">Submit</button>
     </form>
+    <br>
 
+    <!--User-->
+    <div>
+      <p>Name: </p><span id="user-name"></span>
+      <p>Description: </p><span id="description"></span>
+    </div>
+    <br>
+    
+    <!--DESCRIPTION-->
+    <form action="/update-description" method="post">
+      <label>New: <input type="text" name="description"></label>
+      <button type="submit">Update</button>
+    </form>
     <script src="javascripts/main.js"></script>
   </body>
 </html>

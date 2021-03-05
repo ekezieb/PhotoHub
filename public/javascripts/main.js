@@ -60,3 +60,26 @@ document.querySelector("#temp").addEventListener("click", async () => {
   const res = await resRaw.json();
   renderTimeline(res);
 });
+
+// fetch user information
+const renderUser = async () => {
+  try {
+    const name = document.querySelector("#user-name");
+    const des = document.querySelector("#description");
+    const resRaw = await fetch("/get-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user_name: "Alice" }),
+    });
+    const res = await resRaw.json();
+    console.log(res);
+    name.innerHTML = res.user_name;
+    des.innerHTML = res.description;
+  } catch (e) {
+    console.log("Err", e);
+  }
+};
+
+renderUser();
