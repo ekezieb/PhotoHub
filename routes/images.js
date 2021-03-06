@@ -38,14 +38,14 @@ router.post("/upload-image", async (req, res) => {
   // Create a document in the database
   try {
     client = await getClient();
-    console.log("Inserting new document");
+    console.log("Uploading new image");
     const id = await insertDocuments(client, "Images", {});
     // the filename will be decided by random id
     filename = id + ".jpg";
     filepath = __dirname + "/../public/images/" + filename;
     const data = {
       image_name: filename,
-      user_name: "Alice",
+      user_name: req.cookies.user_name,
       url: "images/" + filename,
       number_liked: 0,
       comments: { 0: undefined, 1: undefined },
@@ -57,7 +57,7 @@ router.post("/upload-image", async (req, res) => {
       { $set: data }
     );
     await file.mv(filepath);
-    res.redirect("/");
+    res.status(200).send({ msg: "success" });
   } catch (e) {
     console.log("Error ", e);
     res.status(400).send({ err: e });
@@ -67,13 +67,13 @@ router.post("/upload-image", async (req, res) => {
   }
 });
 
-router.post("/delete-image", async (req, res) => {
+router.delete("/delete-image", async (req, res) => {
   const url = req.body;
   try {
     client = await getClient();
     await deleteDocuments(client, "Images", url);
     const filepath = __dirname + "/../public/" + url.url;
-    fs.unlink(filepath, () => res.send({ status: true }));
+    fs.unlink(filepath, () => res.send({ msg: "success" }));
   } catch (e) {
     console.log(e);
     res.status(400).send({ err: e });

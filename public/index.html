@@ -66,8 +66,6 @@
       crossorigin="anonymous"
     />
     <link rel="stylesheet" href="stylesheets/style.css" />
-  
-    <script src="javascripts/main.js"></script>
   </head>
   
   <body>
@@ -85,37 +83,42 @@
     
     <!--UPLOAD-->
     <h3>Upload image</h3>
-    <form
-      action="/upload-image"
-      method="post"
-      enctype="multipart/form-data"
-    >
+    <form id="upload_image_form">
       <label>File: <input type="file" name="image"/></label>
       <button type="submit">Upload</button>
     </form>
     <br>
 
+    <!--LOGIN-->
+    <h3>Log In</h3>
+    <form id="login_form" method="post">
+      <label>Username: <input type="text" name="user_name"></label>
+      <label>Password: <input type="password" name="password"></label>
+      <button type="submit">Submit</button>
+    </form>
+
     <!--USER INFORMATION-->
     <h3>User Information</h3>
     <div id="user_inf" style="display: none">
-      <img id="profile-photo" src="images/profile-photo/default.jpg" alt="profile_photo">
+      <img id="profile-photo" src="images/profile-photo/default.jpg" alt="profile_photo"
+           style="width: 20px; height:20px">
       <p style="font-weight: bold">Name: </p><p id="user-name"></p>
-      <p style="font-weight: bold">Description: </p><p id="description"></p>
+      <p style="font-weight: bold">Biography: </p><p id="bio"></p>
       <button id="logout">Logout</button>
     </div>
     <br>
     
-    <!--DESCRIPTION-->
-    <h3>Update Description</h3>
-    <form action="/update-description" method="post">
-      <label>New: <input type="text" name="description"></label>
+    <!--BIOGRAPHY-->
+    <h3>Update Biography</h3>
+    <form id="update_bio">
+      <label>New: <input type="text" name="bio"></label>
       <button type="submit">Update</button>
     </form>
     <br>
     
     <!--UPDATE PROFILE PHOTO-->
     <h3>Update Profile Photo</h3>
-    <form action="/update-profile-photo" method="post" enctype="multipart/form-data">
+    <form id="update_profile_photo" method="post" enctype="multipart/form-data">
       <label>Profile Photo: <input type="file" name="profile_photo"></label>
       <button type="submit">Update</button>
     </form>
@@ -123,21 +126,12 @@
 
     <!--SIGNUP-->
     <h3>Sign Up</h3>
-    <form action="/signup" method="post">
+    <form id="signup_form" method="post">
       <label>Username: <input type="text" name="user_name"></label>
       <label>Password: <input type="password" name="password"></label>
       <button type="submit">Submit</button>
     </form>
     <br>
-    
-    <!--LOGIN-->
-    <h3>Log In</h3>
-    <!--TODO what container here?-->
-    <form action="" id="login_form" method="post">
-      <label>Username: <input type="text" name="user_name"></label>
-      <label>Password: <input type="password" name="password"></label>
-      <button type="submit">Submit</button>
-    </form>
-    
+    <script src="javascripts/main.js"></script>
   </body>
 </html>

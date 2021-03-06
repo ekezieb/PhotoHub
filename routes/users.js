@@ -104,17 +104,17 @@ router.get("/get-user", async (req, res) => {
   }
 });
 
-router.post("/update-description", async (req, res) => {
+router.put("/update-bio", async (req, res) => {
   try {
     client = await getClient();
-    console.log("Updating description");
+    console.log("Updating biography");
     await updateDocuments(
       client,
       "Users",
-      { user_name: "Alice" },
-      { $set: { description: req.body.description } }
+      { user_name: req.cookies.user_name },
+      { $set: { bio: req.body.bio } }
     );
-    res.redirect("/");
+    res.status(201).send({ msg: "success" });
   } catch (e) {
     console.log("Error", e);
     res.status(400).send({ err: e });
@@ -124,8 +124,9 @@ router.post("/update-description", async (req, res) => {
   }
 });
 
-router.post("/update-profile-photo", async (req, res) => {
+router.put("/update-profile-photo", async (req, res) => {
   let file, filename, filepath;
+  let user_name = req.cookies.user_name;
 
   if (!req.files.profile_photo) {
     return res.status(400).send("No files were uploaded.");
@@ -134,9 +135,8 @@ router.post("/update-profile-photo", async (req, res) => {
 
   try {
     client = await getClient();
-    console.log("Inserting new document");
-    // TODO use user's name
-    filename = "Alice" + ".jpg";
+    console.log("Updating profile photo of", user_name);
+    filename = user_name + ".jpg";
     filepath = __dirname + "/../public/images/profile-photo/" + filename;
     const data = {
       profile_photo: "images/profile-photo/" + filename,
@@ -144,12 +144,11 @@ router.post("/update-profile-photo", async (req, res) => {
     await updateDocuments(
       client,
       "Users",
-      // TODO
-      { user_name: "Alice" },
+      { user_name: user_name },
       { $set: data }
     );
     await file.mv(filepath);
-    res.redirect("/");
+    res.status(201).send({ msg: "success" });
   } catch (e) {
     console.log("Error", e);
     res.status(400).send({ err: e });
