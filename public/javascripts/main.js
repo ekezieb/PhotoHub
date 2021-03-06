@@ -69,19 +69,13 @@ document.querySelector("#temp").addEventListener("click", async () => {
 // - description
 // - profile_photo
 const renderUser = async () => {
+  document.querySelector("#login_form").style.display = "none";
+  document.querySelector("#user_inf").style.display = "block";
   try {
     const name = document.querySelector("#user-name");
     const des = document.querySelector("#description");
-    const img_div = document.querySelector("#profile-photo");
-    const img = document.createElement("img");
-    const resRaw = await fetch("/get-user", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      // TODO use user name
-      body: JSON.stringify({ user_name: "Bob" }),
-    });
+    const img = document.querySelector("#profile-photo");
+    const resRaw = await fetch("/get-user");
     const res = await resRaw.json();
     console.log(res);
 
@@ -89,7 +83,6 @@ const renderUser = async () => {
     img.setAttribute("alt", "profile_photo");
     img.setAttribute("width", "50px");
     img.setAttribute("height", "50px");
-    img_div.appendChild(img);
     name.innerHTML = res.user_name;
     des.innerHTML = res.description;
   } catch (e) {
@@ -97,4 +90,42 @@ const renderUser = async () => {
   }
 };
 
-renderUser().then();
+// Log in
+const form = document.querySelector("#login_form");
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const user_name = form[0].value;
+  const password = form[1].value;
+  try {
+    const resRaw = await fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user_name: user_name, password: password }),
+    });
+    console.log(resRaw);
+    if (!resRaw.ok) {
+      const res = await resRaw.json();
+      alert(res.err);
+    }
+    form[1].value = "";
+    renderUser().then();
+  } catch (e) {
+    console.log("Err", e);
+  }
+});
+
+// Log out
+document.querySelector("#logout").addEventListener("click", () => {
+  document.cookie = "user_name=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.querySelector("#user_inf").style.display = "none";
+  document.querySelector("#login_form").style.display = "block";
+});
+
+if (document.cookie.search("user_name") === -1) {
+  document.querySelector("#user_inf").style.display = "none";
+  document.querySelector("#login_form").style.display = "block";
+} else {
+  renderUser().then();
+}

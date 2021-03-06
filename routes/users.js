@@ -60,13 +60,19 @@ router.post("/login", async (req, res) => {
       user_name: req.body.user_name,
       password: req.body.password,
     };
+    console.log(query);
     const result = await findDocuments(client, "Users", query);
-    if (result === {}) {
+    if (result.length === 0) {
       // TODO use correct code
+      console.log("not found");
       res.status(400).send({ err: "Incorrect user name or password." });
     } else {
       // TODO
-      res.send({ status: "login succeed" });
+      console.log("found");
+      res.cookie("user_name", result[0].user_name, {
+        maxAge: 86400000, // 1 day
+      });
+      res.redirect("/");
     }
   } catch (e) {
     console.log("Error", e);
@@ -77,13 +83,18 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/get-user", async (req, res) => {
+router.get("/get-user", async (req, res) => {
   try {
     client = await getClient();
-    console.log("Looking up an user");
-    const query = req.body;
-    const user = await findDocuments(client, "Users", query);
-    res.send(user[0]);
+    const query = { user_name: req.cookies.user_name };
+    const users = await findDocuments(client, "Users", query);
+    if (users.length === 0) {
+      res.status(404).send({ err: "User not found" });
+    } else {
+      const user = users[0];
+      delete user.password;
+      res.send(user);
+    }
   } catch (e) {
     console.log("Error", e);
     res.status(400).send({ err: e });
