@@ -13,20 +13,20 @@ let client;
 const imageType = require("image-type");
 
 router.post("/signup", async (req, res) => {
-  if (req.body.user_name === "" || req.body.password === "") {
+  if (req.body.username === "" || req.body.password === "") {
     return res.status(400).send("Username or password cannot be empty.");
   }
   try {
     client = await getClient();
     console.log("Signing up");
     const data = {
-      user_name: req.body.user_name,
+      username: req.body.username,
       password: req.body.password,
       biography: "",
       profile_photo: "images/profile-photo/default.jpg",
     };
     const result = await findDocuments(client, "Users", {
-      user_name: data.user_name,
+      username: data.username,
     });
     if (result.length !== 0) {
       res.status(400).send("User exists.");
@@ -44,11 +44,14 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
+  if (req.cookies.username !== undefined) {
+    return res.status(400).send("Already logged in.");
+  }
   try {
     client = await getClient();
     console.log("Logging in");
     const query = {
-      user_name: req.body.user_name,
+      username: req.body.username,
       password: req.body.password,
     };
     console.log(query);
@@ -56,7 +59,7 @@ router.post("/login", async (req, res) => {
     if (result.length === 0) {
       res.status(404).send("Please provide a valid username and password.");
     } else {
-      res.cookie("user_name", result[0].user_name, {
+      res.cookie("username", result[0].username, {
         maxAge: 86400000, // 1 day
       });
       res.sendStatus(200);
@@ -71,9 +74,12 @@ router.post("/login", async (req, res) => {
 });
 
 router.get("/get-user", async (req, res) => {
+  if (req.cookies.username === undefined) {
+    return res.status(401).send("Please log in first.");
+  }
   try {
     client = await getClient();
-    const query = { user_name: req.cookies.user_name };
+    const query = { username: req.cookies.username };
     const users = await findDocuments(client, "Users", query);
     if (users.length === 0) {
       res.status(404).send("User not found");
@@ -93,13 +99,16 @@ router.get("/get-user", async (req, res) => {
 });
 
 router.put("/update-bio", async (req, res) => {
+  if (req.cookies.username === undefined) {
+    return res.status(401).send("Please log in first.");
+  }
   try {
     client = await getClient();
     console.log("Updating biography");
     await updateDocuments(
       client,
       "Users",
-      { user_name: req.cookies.user_name },
+      { username: req.cookies.username },
       { $set: { biography: req.body.biography } }
     );
     res.sendStatus(200);
@@ -113,8 +122,11 @@ router.put("/update-bio", async (req, res) => {
 });
 
 router.put("/update-profile-photo", async (req, res) => {
+  if (req.cookies.username === undefined) {
+    return res.status(401).send("Please log in first.");
+  }
   let file, filename, filepath;
-  let user_name = req.cookies.user_name;
+  let username = req.cookies.username;
   if (!req.files.profile_photo) {
     return res.status(400).send("No files were uploaded.");
   }
@@ -127,14 +139,14 @@ router.put("/update-profile-photo", async (req, res) => {
   }
   try {
     client = await getClient();
-    console.log("Updating profile photo of", user_name);
-    filename = user_name + "." + image_type.ext;
+    console.log("Updating profile photo of", username);
+    filename = username + "." + image_type.ext;
     filepath = __dirname + "/../public/images/profile-photo/" + filename;
     const data = {
       profile_photo: "images/profile-photo/" + filename,
     };
     // remove previous profile photo if not default
-    const user = await findDocuments(client, "Users", { user_name: user_name });
+    const user = await findDocuments(client, "Users", { username: username });
     if (user[0].profile_photo !== "images/profile-photo/default.jpg") {
       const pre_profile_photo =
         __dirname + "/../public/" + user[0].profile_photo;
@@ -146,7 +158,7 @@ router.put("/update-profile-photo", async (req, res) => {
     await updateDocuments(
       client,
       "Users",
-      { user_name: user_name },
+      { username: username },
       { $set: data }
     );
     // move

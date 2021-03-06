@@ -1,7 +1,7 @@
 // render a block on given image information
 // image
 // - image_name
-// - user_name
+// - username
 // - url
 // - number_liked
 // - comments[]
@@ -42,7 +42,7 @@ const renderBlock = (image) => {
   img.setAttribute("height", "50px");
   block.appendChild(img);
 
-  author.innerHTML = "Author: " + image.user_name;
+  author.innerHTML = "Author: " + image.username;
   comment0.innerText = image.comments[0] === undefined ? "" : image.comments[0];
   comment1.innerText = image.comments[1] === undefined ? "" : image.comments[1];
   comments.appendChild(comment0);
@@ -77,7 +77,7 @@ document.querySelector("#temp").addEventListener("click", async () => {
 
 // fetch user information
 // User
-// - user_name
+// - username
 // - password
 // - description
 // - profile_photo
@@ -85,7 +85,7 @@ const renderUser = async () => {
   document.querySelector("#login_form").style.display = "none";
   document.querySelector("#user_inf").style.display = "block";
   try {
-    const name = document.querySelector("#user-name");
+    const name = document.querySelector("#username");
     const des = document.querySelector("#bio");
     const img = document.querySelector("#profile-photo");
     const resRaw = await fetch("/get-user");
@@ -99,7 +99,7 @@ const renderUser = async () => {
       img.setAttribute("alt", "profile_photo");
       img.setAttribute("width", "50px");
       img.setAttribute("height", "50px");
-      name.innerHTML = res.user_name;
+      name.innerHTML = res.username;
       des.innerHTML = res.biography;
     }
   } catch (e) {
@@ -111,7 +111,7 @@ const renderUser = async () => {
 const login_form = document.querySelector("#login_form");
 login_form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const user_name = login_form[0].value;
+  const username = login_form[0].value;
   const password = login_form[1].value;
   try {
     const resRaw = await fetch("/login", {
@@ -119,7 +119,7 @@ login_form.addEventListener("submit", async (event) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ user_name: user_name, password: password }),
+      body: JSON.stringify({ username: username, password: password }),
     });
     console.log(resRaw);
     if (!resRaw.ok) {
@@ -135,13 +135,13 @@ login_form.addEventListener("submit", async (event) => {
 
 // Log out
 document.querySelector("#logout").addEventListener("click", () => {
-  document.cookie = "user_name=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   document.querySelector("#user_inf").style.display = "none";
   document.querySelector("#login_form").style.display = "block";
 });
 
 // TODO
-if (document.cookie.search("user_name") === -1) {
+if (document.cookie.search("username") === -1) {
   document.querySelector("#user_inf").style.display = "none";
   document.querySelector("#login_form").style.display = "block";
 } else {
@@ -152,7 +152,7 @@ if (document.cookie.search("user_name") === -1) {
 const signup_form = document.querySelector("#signup_form");
 signup_form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const user_name = signup_form[0].value;
+  const username = signup_form[0].value;
   const password = signup_form[1].value;
   try {
     const resRaw = await fetch("/signup", {
@@ -160,7 +160,7 @@ signup_form.addEventListener("submit", async (event) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ user_name: user_name, password: password }),
+      body: JSON.stringify({ username: username, password: password }),
     });
     console.log(resRaw);
     if (!resRaw.ok) {

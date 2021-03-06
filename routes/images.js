@@ -30,6 +30,9 @@ router.get("/images", async (req, res) => {
 });
 
 router.post("/upload-image", async (req, res) => {
+  if (req.cookies.username === undefined) {
+    return res.status(401).send("Please log in first.");
+  }
   let file, filename, filepath;
   if (!req.files) {
     return res.status(400).send("No files were uploaded.");
@@ -52,7 +55,7 @@ router.post("/upload-image", async (req, res) => {
     filepath = __dirname + "/../public/images/" + filename;
     const data = {
       image_name: filename,
-      user_name: req.cookies.user_name,
+      username: req.cookies.username,
       url: "images/" + filename,
       number_liked: 0,
       comments: { 0: undefined, 1: undefined },
@@ -77,9 +80,16 @@ router.post("/upload-image", async (req, res) => {
 });
 
 router.delete("/delete-image", async (req, res) => {
+  if (req.cookies.username === undefined) {
+    return res.status(401).send("Please log in first.");
+  }
   const url = req.body;
   try {
     client = await getClient();
+    const user = await findDocuments(client, "Images", url);
+    if (user[0].username !== req.cookies.username) {
+      return res.status(401).send("Cannot delete other's photo.");
+    }
     await deleteDocuments(client, "Images", url);
     const filepath = __dirname + "/../public/" + url.url;
     fs.unlink(filepath, (err) => {

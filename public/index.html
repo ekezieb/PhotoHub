@@ -74,12 +74,33 @@
     
     <!--TREND-->
     <p>Trend</p>
+    <hr>
     
     <!--TIMELINE-->
     <h3>Timeline</h3>
     <button id="temp">Show Timeline</button>
     <div id="timeline"></div>
-    <br>
+    <hr>
+
+    <!--USER INFORMATION-->
+    <h3>User Information</h3>
+    <div id="user_inf" style="display: none">
+      <img id="profile-photo" src="images/profile-photo/default.jpg" alt="profile_photo"
+           style="width: 50px; height:50px">
+      <p style="font-weight: bold">Name: </p><p id="username"></p>
+      <p style="font-weight: bold">Biography: </p><p id="bio"></p>
+      <button id="logout">Logout</button>
+    </div>
+    <hr>
+    
+    <!--LOGIN-->
+    <h3>Log In</h3>
+    <form id="login_form" method="post">
+      <label>Username: <input type="text" name="username"></label>
+      <label>Password: <input type="password" name="password"></label>
+      <button type="submit">Submit</button>
+    </form>
+    <hr>
     
     <!--UPLOAD-->
     <h3>Upload image</h3>
@@ -87,34 +108,15 @@
       <label>File: <input type="file" name="image"/></label>
       <button type="submit">Upload</button>
     </form>
-    <br>
-
-    <!--LOGIN-->
-    <h3>Log In</h3>
-    <form id="login_form" method="post">
-      <label>Username: <input type="text" name="user_name"></label>
-      <label>Password: <input type="password" name="password"></label>
-      <button type="submit">Submit</button>
-    </form>
-
-    <!--USER INFORMATION-->
-    <h3>User Information</h3>
-    <div id="user_inf" style="display: none">
-      <img id="profile-photo" src="images/profile-photo/default.jpg" alt="profile_photo"
-           style="width: 50px; height:50px">
-      <p style="font-weight: bold">Name: </p><p id="user-name"></p>
-      <p style="font-weight: bold">Biography: </p><p id="bio"></p>
-      <button id="logout">Logout</button>
-    </div>
-    <br>
+    <hr>
     
-    <!--BIOGRAPHY-->
+    <!--UPDATE BIOGRAPHY-->
     <h3>Update Biography</h3>
     <form id="update_bio">
       <label>New: <input type="text" name="bio"></label>
       <button type="submit">Update</button>
     </form>
-    <br>
+    <hr>
     
     <!--UPDATE PROFILE PHOTO-->
     <h3>Update Profile Photo</h3>
@@ -122,16 +124,16 @@
       <label>Profile Photo: <input type="file" name="profile_photo"></label>
       <button type="submit">Update</button>
     </form>
-    <br>
+    <hr>
 
     <!--SIGNUP-->
     <h3>Sign Up</h3>
     <form id="signup_form" method="post">
-      <label>Username: <input type="text" name="user_name"></label>
+      <label>Username: <input type="text" name="username"></label>
       <label>Password: <input type="password" name="password"></label>
       <button type="submit">Submit</button>
     </form>
-    <br>
+    <hr>
     <script src="javascripts/main.js"></script>
   </body>
 </html>
