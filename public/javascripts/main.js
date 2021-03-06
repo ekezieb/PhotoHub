@@ -24,9 +24,12 @@ const renderBlock = (image) => {
         },
         body: JSON.stringify({ url: image.url }),
       });
-      const res = await resRaw.json();
-      console.log(res);
-      document.querySelector("#timeline").removeChild(block);
+      if (!resRaw.ok) {
+        const res = await resRaw.text();
+        alert(res);
+      } else {
+        document.querySelector("#timeline").removeChild(block);
+      }
     } catch (e) {
       console.log("Err ", e);
     }
@@ -54,6 +57,7 @@ const renderBlock = (image) => {
 function renderTimeline(images) {
   const timeline = document.querySelector("#timeline");
   timeline.innerHTML = "";
+  //TODO load async by scrolling
   images.images.forEach((image) => {
     timeline.appendChild(renderBlock(image));
   });
@@ -62,8 +66,13 @@ function renderTimeline(images) {
 // fetch information of images
 document.querySelector("#temp").addEventListener("click", async () => {
   const resRaw = await fetch("/images");
-  const res = await resRaw.json();
-  renderTimeline(res);
+  if (!resRaw.ok) {
+    const res = await resRaw.text();
+    alert(res);
+  } else {
+    const res = await resRaw.json();
+    renderTimeline(res);
+  }
 });
 
 // fetch user information
@@ -80,15 +89,19 @@ const renderUser = async () => {
     const des = document.querySelector("#bio");
     const img = document.querySelector("#profile-photo");
     const resRaw = await fetch("/get-user");
-    const res = await resRaw.json();
-    console.log(res);
-
-    img.setAttribute("src", res.profile_photo);
-    img.setAttribute("alt", "profile_photo");
-    img.setAttribute("width", "50px");
-    img.setAttribute("height", "50px");
-    name.innerHTML = res.user_name;
-    des.innerHTML = res.bio;
+    if (!resRaw) {
+      const res = await resRaw.text();
+      alert(res);
+    } else {
+      const res = await resRaw.json();
+      console.log(res);
+      img.setAttribute("src", res.profile_photo);
+      img.setAttribute("alt", "profile_photo");
+      img.setAttribute("width", "50px");
+      img.setAttribute("height", "50px");
+      name.innerHTML = res.user_name;
+      des.innerHTML = res.biography;
+    }
   } catch (e) {
     console.log("Err", e);
   }
@@ -109,14 +122,11 @@ login_form.addEventListener("submit", async (event) => {
       body: JSON.stringify({ user_name: user_name, password: password }),
     });
     console.log(resRaw);
-    // Clear the password
-    login_form[1].value = "";
     if (!resRaw.ok) {
-      const res = await resRaw.json();
-      alert(res.err);
+      const res = await resRaw.text();
+      alert(res);
     } else {
-      login_form[0].value = "";
-      renderUser().then();
+      location.reload();
     }
   } catch (e) {
     console.log("Err", e);
@@ -153,13 +163,11 @@ signup_form.addEventListener("submit", async (event) => {
       body: JSON.stringify({ user_name: user_name, password: password }),
     });
     console.log(resRaw);
-    // Clear the field
-    login_form[0].value = "";
-    login_form[1].value = "";
     if (!resRaw.ok) {
-      const res = await resRaw.json();
-      alert(res.err);
+      const res = await resRaw.text();
+      alert(res);
     }
+    signup_form.reset();
   } catch (e) {
     console.log("Err", e);
   }
@@ -175,14 +183,18 @@ update_profile_photo.addEventListener("submit", async (event) => {
       method: "PUT",
       body: formData,
     });
-    update_profile_photo[0].value = "";
     console.log("update_profile_photo", resRaw);
+    if (!resRaw.ok) {
+      const res = await resRaw.text();
+      alert(res);
+    }
+    location.reload();
   } catch (e) {
     console.log("Err", e);
   }
 });
 
-// Update bio
+// Update biography
 const update_bio_form = document.querySelector("#update_bio");
 update_bio_form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -193,12 +205,16 @@ update_bio_form.addEventListener("submit", async (event) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ bio: bio }),
+      body: JSON.stringify({ biography: bio }),
     });
-    update_bio_form[0].value = "";
     console.log("update_bio", resRaw);
-  } catch (e) {
-    console.log("Err", e);
+    if (!resRaw.ok) {
+      const res = await resRaw.text();
+      alert(res);
+    }
+    location.reload();
+  } catch (err) {
+    console.log("Err", err);
   }
 });
 
@@ -212,9 +228,13 @@ upload_image_form.addEventListener("submit", async (event) => {
       method: "POST",
       body: formData,
     });
-    update_profile_photo[0].value = "";
     console.log("upload_image", resRaw);
-  } catch (e) {
-    console.log("Err", e);
+    if (!resRaw.ok) {
+      const res = await resRaw.text();
+      alert(res);
+    }
+    location.reload();
+  } catch (err) {
+    console.log("Err", err);
   }
 });

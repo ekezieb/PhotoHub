@@ -12,15 +12,17 @@ const deleteDocuments = require("../db/deleteDocuments");
 const getClient = require("../db/getClient");
 let client;
 
+const imageType = require("image-type");
+
 router.get("/images", async (req, res) => {
   try {
     client = await getClient();
     console.log("Looking up images");
     const document = await findDocuments(client, "Images", {});
     res.send({ images: document });
-  } catch (e) {
-    console.log("Error ", e);
-    res.status(400).send({ err: e });
+  } catch (err) {
+    console.log("Error ", err);
+    res.status(400).send(err.name + ": " + err.message);
   } finally {
     client.close();
     console.log("Connection closed.");
@@ -29,19 +31,24 @@ router.get("/images", async (req, res) => {
 
 router.post("/upload-image", async (req, res) => {
   let file, filename, filepath;
-
   if (!req.files) {
     return res.status(400).send("No files were uploaded.");
   }
   file = req.files.image;
-
+  const image_type = imageType(file.data);
+  // Incompatible file type
+  if (image_type === null) {
+    return res
+      .status(415)
+      .send("Unsupported Media Type.\nPlease upload an image.");
+  }
   // Create a document in the database
   try {
     client = await getClient();
     console.log("Uploading new image");
     const id = await insertDocuments(client, "Images", {});
     // the filename will be decided by random id
-    filename = id + ".jpg";
+    filename = id + "." + image_type.ext;
     filepath = __dirname + "/../public/images/" + filename;
     const data = {
       image_name: filename,
@@ -56,11 +63,13 @@ router.post("/upload-image", async (req, res) => {
       { _id: ObjectId(id) },
       { $set: data }
     );
-    await file.mv(filepath);
-    res.status(200).send({ msg: "success" });
-  } catch (e) {
-    console.log("Error ", e);
-    res.status(400).send({ err: e });
+    await file.mv(filepath, (err) => {
+      if (err) res.status(400).send(err.name + ": " + err.message);
+      else res.sendStatus(200);
+    });
+  } catch (err) {
+    console.log("Error ", err);
+    res.status(400).send(err.name + ": " + err.message);
   } finally {
     client.close();
     console.log("Connection closed.");
@@ -73,10 +82,13 @@ router.delete("/delete-image", async (req, res) => {
     client = await getClient();
     await deleteDocuments(client, "Images", url);
     const filepath = __dirname + "/../public/" + url.url;
-    fs.unlink(filepath, () => res.send({ msg: "success" }));
-  } catch (e) {
-    console.log(e);
-    res.status(400).send({ err: e });
+    fs.unlink(filepath, (err) => {
+      if (err) res.status(400).send(err.name + ": " + err.message);
+      else res.sendStatus(200);
+    });
+  } catch (err) {
+    console.log("Error ", err);
+    res.status(400).send(err.name + ": " + err.message);
   } finally {
     client.close();
     console.log("Connection closed.");
