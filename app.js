@@ -3,6 +3,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const fileUpload = require("express-fileupload");
+const bodyParser = require("body-parser");
 
 const usersRouter = require("./routes/users");
 const imagesRouter = require("./routes/images");
@@ -18,5 +19,7 @@ app.use(fileUpload({}));
 
 app.use("/", imagesRouter);
 app.use("/", usersRouter);
+
+app.use(bodyParser.urlencoded({ extended: true }));
 
 module.exports = app;

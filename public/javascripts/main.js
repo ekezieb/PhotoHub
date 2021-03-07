@@ -52,6 +52,7 @@ const renderBlock = (image) => {
 
   return block;
 };
+// end of render block
 
 // render the timeline on query results
 function renderTimeline(images) {

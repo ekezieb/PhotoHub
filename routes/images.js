@@ -79,6 +79,55 @@ router.post("/upload-image", async (req, res) => {
   }
 });
 
+router.post("/add-comment", async (req, res) => {
+  if (req.cookies.username === undefined) {
+    return res.status(401).send("Please log in first.");
+  }
+  try {
+    client = await getClient();
+    console.log("Posting a comment");
+
+    const commentbody = req.body.comment;
+    //console.log(commentbody);
+
+    const id = await insertDocuments(client, "comments-collection", {
+      comment: commentbody,
+    });
+    const data = {
+      username: req.cookies.username,
+      comment: commentbody,
+    };
+    await updateDocuments(
+      client,
+      "comments-collection",
+      { _id: ObjectId(id) },
+      { $set: data }
+    );
+    //res.sendStatus(200);
+    //res.send("Data receivede\n" + JSON.stringify(commentbody));
+  } catch (err) {
+    console.log("Error ", err);
+    res.status(400).send(err.name + ": " + err.message);
+  } finally {
+    client.close();
+    console.log("Connection closed.");
+  }
+});
+
+router.get("/view-comment", async (req, res) => {
+  try {
+    client = await getClient();
+    const comment = await findDocuments(client, "comments-collection", {});
+    res.send(comment);
+  } catch (err) {
+    console.log("Error ", err);
+    res.status(400).send(err.name + ": " + err.message);
+  } finally {
+    client.close();
+    console.log("Connection closed.");
+  }
+});
+
 router.delete("/delete-image", async (req, res) => {
   if (req.cookies.username === undefined) {
     return res.status(401).send("Please log in first.");
