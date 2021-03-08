@@ -90,21 +90,24 @@ router.post("/add-comment", async (req, res) => {
     const commentbody = req.body.comment;
     //console.log(commentbody);
 
-    const id = await insertDocuments(client, "comments-collection", {
+    await insertDocuments(client, "comments-collection", {
       comment: commentbody,
+      username: req.cookies.username,
     });
-    const data = {
+    /*const data = {
       username: req.cookies.username,
       comment: commentbody,
     };
+
     await updateDocuments(
       client,
       "comments-collection",
       { _id: ObjectId(id) },
       { $set: data }
     );
+    */
     //res.sendStatus(200);
-    //res.send("Data receivede\n" + JSON.stringify(commentbody));
+    res.send("Data receivede\n" + JSON.stringify(commentbody));
   } catch (err) {
     console.log("Error ", err);
     res.status(400).send(err.name + ": " + err.message);

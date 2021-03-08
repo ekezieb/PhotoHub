@@ -43,6 +43,7 @@ const renderBlock = (image) => {
   block.appendChild(img);
 
   author.innerHTML = "Author: " + image.username;
+
   comment0.innerText = image.comments[0] === undefined ? "" : image.comments[0];
   comment1.innerText = image.comments[1] === undefined ? "" : image.comments[1];
   comments.appendChild(comment0);
@@ -54,11 +55,23 @@ const renderBlock = (image) => {
 };
 // end of render block
 
+/*
+const renderComment = (image, comments) => {
+
+};
+*/
+
 // render the timeline on query results
 function renderTimeline(images) {
   const timeline = document.querySelector("#timeline");
   timeline.innerHTML = "";
   //TODO load async by scrolling
+  /*
+  images.images.comments.forEach((image, comments, index) => {
+    comments[index] = 
+  });
+  */
+
   images.images.forEach((image) => {
     timeline.appendChild(renderBlock(image));
   });
