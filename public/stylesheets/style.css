@@ -11,3 +11,9 @@ a {
     max-width: 960px;
   }
 }
+
+@media (min-width: 992px) {
+  .container{
+    max-width: 960px;
+  }
+}

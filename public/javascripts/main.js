@@ -80,6 +80,52 @@ function renderTimeline(images) {
   });
 }
 
+// Log in
+// User
+// - username
+// - password
+// - description
+// - profile_photo
+const login = async () => {
+  try {
+    const name = document.querySelector("#username");
+    const des = document.querySelector("#bio");
+    const img = document.querySelector("#profile_photo");
+    const imgL = document.querySelector("#profile_photo_large");
+    const resRaw = await fetch("/get-user");
+    if (!resRaw) {
+      const res = await resRaw.text();
+      alert(res);
+    } else {
+      const res = await resRaw.json();
+      console.log(res);
+      img.setAttribute("src", res.profile_photo);
+      imgL.setAttribute("src", res.profile_photo);
+      name.innerHTML = res.username;
+      des.innerHTML = res.biography;
+
+      document.querySelector("#logout_link").classList.remove("d-none");
+      document.querySelector("#login_link").classList.add("d-none");
+
+      document.querySelectorAll(".a_log").forEach((value) => {
+        value.setAttribute("href", "home.html");
+      });
+    }
+  } catch (e) {
+    console.log("Err", e);
+  }
+};
+
+// Log out
+document.querySelector("#logout_link").addEventListener("click", () => {
+  document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.querySelector("#logout_link").classList.add("d-none");
+  document.querySelector("#login_link").classList.remove("d-none");
+  document.querySelectorAll(".a_log").forEach((value) => {
+    value.setAttribute("href", "login.html");
+  });
+});
+
 // fetch information of images
 window.addEventListener("load", async () => {
   const resRaw = await fetch("/images");
@@ -90,64 +136,29 @@ window.addEventListener("load", async () => {
     const res = await resRaw.json();
     renderTimeline(res);
   }
-});
 
-// fetch user information
-// User
-// - username
-// - password
-// - description
-// - profile_photo
-const renderUser = async () => {
-  document.querySelector("#login_form").style.display = "none";
-  document.querySelector("#user_inf").style.display = "block";
-  try {
-    const name = document.querySelector("#username");
-    const des = document.querySelector("#bio");
-    const img = document.querySelector("#profile-photo");
-    const resRaw = await fetch("/get-user");
-    if (!resRaw) {
-      const res = await resRaw.text();
-      alert(res);
-    } else {
-      const res = await resRaw.json();
-      console.log(res);
-      img.setAttribute("src", res.profile_photo);
-      img.setAttribute("alt", "profile_photo");
-      img.setAttribute("width", "50px");
-      img.setAttribute("height", "50px");
-      name.innerHTML = res.username;
-      des.innerHTML = res.biography;
-    }
-  } catch (e) {
-    console.log("Err", e);
+  if (document.cookie.search("username") !== -1) {
+    login().then();
   }
-};
-
-// Log out
-document.querySelector("#logout").addEventListener("click", () => {
-  document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  document.querySelector("#user_inf").style.display = "none";
-  document.querySelector("#login_form").style.display = "block";
 });
 
 // Upload an image
-const upload_image_form = document.querySelector("#upload_image_form");
-upload_image_form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  try {
-    const formData = new FormData(upload_image_form);
-    const resRaw = await fetch("/upload-image", {
-      method: "POST",
-      body: formData,
-    });
-    console.log("upload_image", resRaw);
-    if (!resRaw.ok) {
-      const res = await resRaw.text();
-      alert(res);
-    }
-    location.reload();
-  } catch (err) {
-    console.log("Err", err);
-  }
-});
+// const upload_image_form = document.querySelector("#upload_image_form");
+// upload_image_form.addEventListener("submit", async (event) => {
+//   event.preventDefault();
+//   try {
+//     const formData = new FormData(upload_image_form);
+//     const resRaw = await fetch("/upload-image", {
+//       method: "POST",
+//       body: formData,
+//     });
+//     console.log("upload_image", resRaw);
+//     if (!resRaw.ok) {
+//       const res = await resRaw.text();
+//       alert(res);
+//     }
+//     location.reload();
+//   } catch (err) {
+//     console.log("Err", err);
+//   }
+// });
