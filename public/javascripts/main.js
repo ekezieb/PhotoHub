@@ -8,14 +8,15 @@
 const renderBlock = (image) => {
   console.log(image.url);
   const block = document.createElement("div");
-  const del = document.createElement("button");
+  const del_btn = document.createElement("div");
+  const del_icon = document.createElement("svg");
   const img = document.createElement("img");
   const author = document.createElement("p");
   const comments = document.createElement("div");
   const comment0 = document.createElement("p");
   const comment1 = document.createElement("p");
 
-  del.addEventListener("click", async () => {
+  del_btn.addEventListener("click", async () => {
     try {
       const resRaw = await fetch("/delete-image", {
         method: "DELETE",
@@ -34,12 +35,11 @@ const renderBlock = (image) => {
       console.log("Err ", e);
     }
   });
-  block.appendChild(del);
+  del_btn.appendChild(del_icon);
+  block.appendChild(del_btn);
 
   img.setAttribute("src", image.url);
   img.setAttribute("alt", "user_photo");
-  img.setAttribute("width", "50px");
-  img.setAttribute("height", "50px");
   block.appendChild(img);
 
   author.innerHTML = "Author: " + image.username;
@@ -50,6 +50,9 @@ const renderBlock = (image) => {
   block.appendChild(author);
   block.appendChild(comments);
 
+  img.classList.add("img-fluid");
+  del_icon.classList.add("fas", "fa-window-close", "fas-2x");
+  block.classList.add("block", "align-self-center");
   return block;
 };
 // end of render block
@@ -65,7 +68,7 @@ function renderTimeline(images) {
 }
 
 // fetch information of images
-document.querySelector("#temp").addEventListener("click", async () => {
+window.addEventListener("load", async () => {
   const resRaw = await fetch("/images");
   if (!resRaw.ok) {
     const res = await resRaw.text();
