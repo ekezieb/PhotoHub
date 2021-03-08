@@ -71,39 +71,48 @@
 <body>
   <!--NAV-->
   <nav class="navbar fixed-top navbar-light bg-light">
-    <div class="container">
-      <a class="col-md-3 col-sm-6 navbar-brand" href="#">
+    <div class="container px-lg-5">
+      <a class="col-lg-3 col-sm-6 navbar-brand" href="#">
         <img src="favicon/android-chrome-192x192.png" alt="favicon" width="30" height="30"
-             class="d-inline-block align-self-center">
+             class="d-inline-block align-self-center rounded-circle">
         <div class="d-inline-block align-bottom">PhotoHub</div>
       </a>
-      <div class="col-md-6 col-sm-3"></div>
-      <svg class="col-md-1 col-sm-1 fas fa-plus fa-2x nav-item align-self-center"></svg>
-      <svg class="col-md-1 col-sm-1 fas fa-heart fa-2x nav-item align-self-center"></svg>
-      <a class="col-md-1 col-sm-1" href="#">
-        <img src="images/profile-photo/default.jpg" alt="profile_photo" width="30" height="30"
-            class="d-inline-block align-self-center">
+      <div class="col-lg-6 col-sm-3"></div>
+      <svg class="col-lg-1 col-sm-1 fas fa-plus fa-2x nav-item align-self-center"></svg>
+      <svg class="col-lg-1 col-sm-1 fas fa-heart fa-2x nav-item align-self-center"></svg>
+      <a class="col-lg-1 col-sm-1" href="login.html">
+        <img src="images/profile-photo/default.jpg" alt="profile_photo"
+            class="rounded-circle d-inline-block align-self-center profile-photo" height="35px" width="35px">
       </a>
     </div>
   </nav>
   
-  <div class="container" style="margin-top: 56px">
+  <div class="container px-lg-5" style="margin-top: 56px">
     <div class="row">
-      <div class="timeline col-md-10 col-sm-12" id="timeline"></div>
-      <div class="right-container col-md-2">
-        <div class="container-fluid">
+      <div class="timeline col-lg-8 col-sm-12" id="timeline"></div>
+      <div class="right-container col-lg-4 d-none d-md-block">
+        <div class="container-fluid my-4">
           <div class="row">
-            <a href="#" class="col-md-6">
-              <img src="images/profile-photo/default.jpg" alt="profile_photo_large" width="40" height="40">
+            <a href="login.html" class="col-lg-4">
+              <img src="images/profile-photo/default.jpg" alt="profile_photo_large"
+                   class="img-fluid rounded-circle profile-photo">
             </a>
-            <div class="col-md-6 align-self-center">
-              <p class="heading" id="username">Alice</p>
-              <p class="subheading">logout</p>
+            <div class="col-lg-6 align-self-center">
+              <div class="heading" id="username" style="font-size: large ;font-weight: bold">Visitor</div>
+              <div class="subheading" id="user_info" style="font-size: x-small">log in to explore</div>
             </div>
+            <a href="login.html" class="col-lg-2 align-self-center subheading" id="log_link">login</a>
           </div>
         </div>
-        <div>Social Icons</div>
-        <div>All rights reserved</div>
+        <div class="container my-4">
+          <div class="row row-cols-4">
+            <a href="https://www.facebook.com/" class="text-center"><svg class="fab fa-facebook-f fa-2x"></svg></a>
+            <a href="https://twitter.com/" class="text-center"><svg class="fab fa-twitter fa-2x"></svg></a>
+            <a href="https://github.com/" class="text-center"><svg class="fab fa-github fa-2x"></svg></a>
+            <a href="https://www.instagram.com/" class="text-center"><svg class="fab fa-instagram fa-2x"></svg></a>
+          </div>
+        </div>
+        <div class="text-center my-4">All rights reserved</div>
       </div>
     </div>
   </div>

@@ -7,15 +7,17 @@
 // - comments[]
 const renderBlock = (image) => {
   console.log(image.url);
-  const block = document.createElement("div");
+  const author = document.createElement("div");
   const del_btn = document.createElement("div");
   const del_icon = document.createElement("svg");
+  const block_top = document.createElement("div");
   const img = document.createElement("img");
-  const author = document.createElement("p");
   const comments = document.createElement("div");
-  const comment0 = document.createElement("p");
-  const comment1 = document.createElement("p");
+  const comment0 = document.createElement("div");
+  const comment1 = document.createElement("div");
+  const block = document.createElement("div");
 
+  author.innerHTML = image.username;
   del_btn.addEventListener("click", async () => {
     try {
       const resRaw = await fetch("/delete-image", {
@@ -36,23 +38,34 @@ const renderBlock = (image) => {
     }
   });
   del_btn.appendChild(del_icon);
-  block.appendChild(del_btn);
+  block_top.appendChild(author);
+  block_top.appendChild(del_btn);
 
   img.setAttribute("src", image.url);
   img.setAttribute("alt", "user_photo");
-  block.appendChild(img);
 
-  author.innerHTML = "Author: " + image.username;
   comment0.innerText = image.comments[0] === undefined ? "" : image.comments[0];
   comment1.innerText = image.comments[1] === undefined ? "" : image.comments[1];
   comments.appendChild(comment0);
   comments.appendChild(comment1);
-  block.appendChild(author);
+
+  block.appendChild(block_top);
+  block.appendChild(img);
   block.appendChild(comments);
 
-  img.classList.add("img-fluid");
+  author.classList.add("d-inline-block", "align-self-center", "m-2", "me-auto");
+  del_btn.classList.add("d-inline-block", "align-self-center", "m-2");
   del_icon.classList.add("fas", "fa-window-close", "fas-2x");
-  block.classList.add("block", "align-self-center");
+  block_top.classList.add("d-flex");
+  img.classList.add("img-fluid");
+  block.classList.add(
+    "block",
+    "m-3",
+    "border",
+    "border-1",
+    "border-secondary",
+    "bg-light"
+  );
   return block;
 };
 // end of render block
@@ -111,115 +124,11 @@ const renderUser = async () => {
   }
 };
 
-// Log in
-const login_form = document.querySelector("#login_form");
-login_form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const username = login_form[0].value;
-  const password = login_form[1].value;
-  try {
-    const resRaw = await fetch("/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username: username, password: password }),
-    });
-    console.log(resRaw);
-    if (!resRaw.ok) {
-      const res = await resRaw.text();
-      alert(res);
-    } else {
-      location.reload();
-    }
-  } catch (e) {
-    console.log("Err", e);
-  }
-});
-
 // Log out
 document.querySelector("#logout").addEventListener("click", () => {
   document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   document.querySelector("#user_inf").style.display = "none";
   document.querySelector("#login_form").style.display = "block";
-});
-
-// TODO
-if (document.cookie.search("username") === -1) {
-  document.querySelector("#user_inf").style.display = "none";
-  document.querySelector("#login_form").style.display = "block";
-} else {
-  renderUser().then();
-}
-
-// Sign up
-const signup_form = document.querySelector("#signup_form");
-signup_form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const username = signup_form[0].value;
-  const password = signup_form[1].value;
-  try {
-    const resRaw = await fetch("/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username: username, password: password }),
-    });
-    console.log(resRaw);
-    if (!resRaw.ok) {
-      const res = await resRaw.text();
-      alert(res);
-    }
-    signup_form.reset();
-  } catch (e) {
-    console.log("Err", e);
-  }
-});
-
-// Update profile photo
-const update_profile_photo = document.querySelector("#update_profile_photo");
-update_profile_photo.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  try {
-    const formData = new FormData(update_profile_photo);
-    const resRaw = await fetch("/update-profile-photo", {
-      method: "PUT",
-      body: formData,
-    });
-    console.log("update_profile_photo", resRaw);
-    if (!resRaw.ok) {
-      const res = await resRaw.text();
-      alert(res);
-    }
-    location.reload();
-  } catch (e) {
-    console.log("Err", e);
-  }
-});
-
-// Update biography
-const update_bio_form = document.querySelector("#update_bio");
-update_bio_form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const bio = update_bio_form[0].value;
-  try {
-    const resRaw = await fetch("/update-bio", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ biography: bio }),
-    });
-    console.log("update_bio", resRaw);
-    if (!resRaw.ok) {
-      const res = await resRaw.text();
-      alert(res);
-    }
-    location.reload();
-  } catch (err) {
-    console.log("Err", err);
-  }
 });
 
 // Upload an image

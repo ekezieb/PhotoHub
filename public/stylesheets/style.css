@@ -5,3 +5,9 @@ body {
 a {
   color: #00B7FF;
 }
+
+@media (min-width: 992px) {
+  .container{
+    max-width: 960px;
+  }
+}
