@@ -12,7 +12,9 @@ const renderBlock = (image) => {
   const del_icon = document.createElement("svg");
   const block_top = document.createElement("div");
   const img = document.createElement("img");
-  const comments = document.createElement("div");
+  const comments = document.createElement("form");
+  const comment_inputbox = document.createElement("input");
+  const post_btn = document.createElement("button");
   const comment0 = document.createElement("div");
   const comment1 = document.createElement("div");
   const block = document.createElement("div");
@@ -44,8 +46,31 @@ const renderBlock = (image) => {
   img.setAttribute("src", image.url);
   img.setAttribute("alt", "user_photo");
 
+  comments.setAttribute("id", "comments-form");
+  comments.setAttribute("action", "/add-comment");
+  comments.setAttribute("method", "POST");
+
+  comment_inputbox.setAttribute("placeholder", "Add a comment...");
+  comment_inputbox.setAttribute("type", "text");
+  comment_inputbox.setAttribute("name", "comment");
+
+  comments.appendChild(comment_inputbox);
+
+  post_btn.innerText = "post";
+  post_btn.setAttribute("type", "submit");
+
+  // post_btn.addEventListener("click", async () => {
+  //   comment_list = [];
+  //   try {
+  //     const resRaw = await fetch("/view-comment");
+  //   }
+  // });
+
+  comments.appendChild(post_btn);
+
   comment0.innerText = image.comments[0] === undefined ? "" : image.comments[0];
   comment1.innerText = image.comments[1] === undefined ? "" : image.comments[1];
+
   comments.appendChild(comment0);
   comments.appendChild(comment1);
 

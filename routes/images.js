@@ -107,7 +107,7 @@ router.post("/add-comment", async (req, res) => {
     );
     */
     //res.sendStatus(200);
-    res.send("Data receivede\n" + JSON.stringify(commentbody));
+    res.send("Data received\n" + JSON.stringify(commentbody));
   } catch (err) {
     console.log("Error ", err);
     res.status(400).send(err.name + ": " + err.message);
