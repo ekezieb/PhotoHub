@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const sharp = require("sharp");
 const fs = require("fs");
 
 const findDocuments = require("../db/findDocuments");
@@ -184,7 +184,9 @@ router.put("/update-profile-photo", async (req, res) => {
       { $set: data }
     );
     // move
-    await file.mv(filepath, (err) => {
+    file = await sharp(file.data);
+    file = await file.resize(200);
+    await file.toFile(filepath, (err) => {
       if (err) res.status(400).send(err.name + ": " + err.message);
       else res.sendStatus(200);
     });

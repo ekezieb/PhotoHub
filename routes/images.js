@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const sharp = require("sharp");
 const ObjectId = require("mongodb").ObjectID;
 const fs = require("fs");
 
@@ -66,7 +66,9 @@ router.post("/upload-image", async (req, res) => {
       { _id: ObjectId(id) },
       { $set: data }
     );
-    await file.mv(filepath, (err) => {
+    file = await sharp(file.data);
+    file = await file.resize(1000);
+    await file.toFile(filepath, (err) => {
       if (err) res.status(400).send(err.name + ": " + err.message);
       else res.sendStatus(200);
     });
