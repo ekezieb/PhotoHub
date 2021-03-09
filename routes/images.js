@@ -58,7 +58,7 @@ router.post("/upload-image", async (req, res) => {
       username: req.cookies.username,
       url: "images/" + filename,
       number_liked: 0,
-      comments: { 0: undefined, 1: undefined },
+      comments: {},
     };
     await updateDocuments(
       client,
@@ -96,7 +96,24 @@ router.post("/add-comment", async (req, res) => {
     const image_document = await findDocuments(client, "Images", {
       image_name: req.body.image_name,
     });
-    await updateDocuments(client, "Images", image_document[0], {});
+    // console.log("image_document" + image_document[0]);
+    // console.log(image_document[0].comments);
+
+    const usr = req.cookies.username.value;
+    console.log(usr);
+
+    await updateDocuments(client, "Images", image_document[0], {
+      $set: { [usr]: comment_body },
+    });
+
+    // await updateDocuments(client, "Images", image_document[0], {
+    //   $set: {
+    //     "comments.username": req.cookies.username,
+    //     "comments.commentText": comment_body,
+    //   },
+    // });
+
+    console.log("After updating comments\n" + image_document[0].comments);
 
     res.sendStatus(200);
   } catch (err) {
