@@ -17,3 +17,11 @@ a {
     max-width: 960px;
   }
 }
+
+.input-group {
+  width: 90%;
+}
+
+.input-group>.form-control {
+  width: 100%;
+}

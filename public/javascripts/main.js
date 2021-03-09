@@ -1,3 +1,19 @@
+let users;
+!(async function () {
+  const usersRaw = await fetch("/get-all-users");
+  users = await usersRaw.json();
+  users = await Object.values(users);
+})();
+
+const getUser = (username) => {
+  for (let user of users) {
+    if (user.username === username) {
+      return user;
+    }
+  }
+  alert("User " + username + " Not Found");
+};
+
 // render a block on given image information
 // image
 // - image_name
@@ -6,7 +22,7 @@
 // - number_liked
 // - comments[]
 const renderBlock = (image) => {
-  console.log(image.url);
+  const profile_img = document.createElement("img");
   const author = document.createElement("div");
   const del_btn = document.createElement("div");
   const del_icon = document.createElement("svg");
@@ -18,6 +34,11 @@ const renderBlock = (image) => {
   const comment0 = document.createElement("div");
   const comment1 = document.createElement("div");
   const block = document.createElement("div");
+
+  profile_img.setAttribute("src", getUser(image.username).profile_photo);
+  profile_img.setAttribute("width", "20px");
+  profile_img.setAttribute("height", "20px");
+  profile_img.classList.add("rounded-circle");
 
   author.innerHTML = image.username;
   del_btn.addEventListener("click", async () => {
@@ -40,6 +61,7 @@ const renderBlock = (image) => {
     }
   });
   del_btn.appendChild(del_icon);
+  block_top.appendChild(profile_img);
   block_top.appendChild(author);
   block_top.appendChild(del_btn);
 
@@ -78,11 +100,14 @@ const renderBlock = (image) => {
   block.appendChild(img);
   block.appendChild(comments);
 
+  profile_img.classList.add("d-inline-block", "align-self-center", "m-2");
   author.classList.add("d-inline-block", "align-self-center", "m-2", "me-auto");
   del_btn.classList.add("d-inline-block", "align-self-center", "m-2");
-  del_icon.classList.add("fas", "fa-window-close", "fas-2x");
+  del_icon.classList.add("fas", "fa-times", "fas-2x");
   block_top.classList.add("d-flex");
   img.classList.add("img-fluid");
+  comment0.classList.add("align-self-center", "m-2");
+  comment1.classList.add("align-self-center", "m-2");
   block.classList.add(
     "block",
     "m-3",
@@ -179,23 +204,54 @@ window.addEventListener("load", async () => {
   }
 });
 
+// Call upload window
+const shade = document.querySelector("#shade");
+const upload_button = document.querySelector("#upload_button");
+const upload_window = document.querySelector("#upload_window");
+
+function callUploadWindow() {
+  upload_window.classList.remove("d-none");
+  shade.classList.remove("d-none");
+  shade.addEventListener("click", hideUploadWindow, { once: true });
+}
+
+function hideUploadWindow() {
+  upload_window.classList.add("d-none");
+  shade.classList.add("d-none");
+  upload_button.addEventListener("click", callUploadWindow, { once: true });
+}
+
+upload_button.addEventListener("click", callUploadWindow, { once: true });
+
+// Thumbnail
+const upload_image_form = document.querySelector("#upload_image_form");
+const upload_image = document.querySelector("#upload_image");
+const upload = document.querySelector("#upload");
+upload.addEventListener("change", () => {
+  const oFReader = new FileReader();
+  oFReader.readAsDataURL(upload.files[0]);
+  oFReader.onload = function (oFREvent) {
+    upload_image.src = oFREvent.target.result;
+  };
+  upload_image.classList.remove("d-none");
+});
+
 // Upload an image
-// const upload_image_form = document.querySelector("#upload_image_form");
-// upload_image_form.addEventListener("submit", async (event) => {
-//   event.preventDefault();
-//   try {
-//     const formData = new FormData(upload_image_form);
-//     const resRaw = await fetch("/upload-image", {
-//       method: "POST",
-//       body: formData,
-//     });
-//     console.log("upload_image", resRaw);
-//     if (!resRaw.ok) {
-//       const res = await resRaw.text();
-//       alert(res);
-//     }
-//     location.reload();
-//   } catch (err) {
-//     console.log("Err", err);
-//   }
-// });
+upload_image_form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  try {
+    const formData = new FormData(upload_image_form);
+    const resRaw = await fetch("/upload-image", {
+      method: "POST",
+      body: formData,
+    });
+    console.log("upload_image", resRaw);
+    if (!resRaw.ok) {
+      const res = await resRaw.text();
+      alert(res);
+    }
+    location.reload();
+  } catch (err) {
+    console.log("Err", err);
+  }
+});

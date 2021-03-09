@@ -22,7 +22,7 @@ router.post("/signup", async (req, res) => {
     const data = {
       username: req.body.username,
       password: req.body.password,
-      biography: "",
+      biography: "lifestyle",
       profile_photo: "images/profile-photo/default.jpg",
     };
     const result = await findDocuments(client, "Users", {
@@ -88,6 +88,28 @@ router.get("/get-user", async (req, res) => {
       delete user.password;
       delete user._id;
       res.send(user);
+    }
+  } catch (err) {
+    console.log("Error", err);
+    res.status(400).send(err.name + ": " + err.message);
+  } finally {
+    client.close();
+    console.log("Connection closed");
+  }
+});
+
+router.get("/get-all-users", async (req, res) => {
+  try {
+    client = await getClient();
+    const users = await findDocuments(client, "Users", {});
+    if (users.length === 0) {
+      res.status(404).send("User not found");
+    } else {
+      for (let user of users) {
+        delete user.password;
+        delete user._id;
+      }
+      res.send(users);
     }
   } catch (err) {
     console.log("Error", err);
