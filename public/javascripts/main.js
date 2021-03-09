@@ -1,18 +1,9 @@
-let users;
-!(async function () {
-  const usersRaw = await fetch("/get-all-users");
-  users = await usersRaw.json();
-  users = await Object.values(users);
-})();
+// On load
+// 1. fetch all users
+// 2. log in
+// 3. fetch information of images
 
-const getUser = (username) => {
-  for (let user of users) {
-    if (user.username === username) {
-      return user;
-    }
-  }
-  alert("User " + username + " Not Found");
-};
+window.addEventListener("load", login);
 
 // render a block on given image information
 // image
@@ -21,7 +12,7 @@ const getUser = (username) => {
 // - url
 // - number_liked
 // - comments[]
-const renderBlock = (image) => {
+async function renderBlock(image) {
   const profile_img = document.createElement("img");
   const author = document.createElement("div");
   const del_btn = document.createElement("div");
@@ -35,7 +26,8 @@ const renderBlock = (image) => {
   const comment1 = document.createElement("div");
   const block = document.createElement("div");
 
-  profile_img.setAttribute("src", getUser(image.username).profile_photo);
+  const user = await getUser(image.username);
+  await profile_img.setAttribute("src", user.profile_photo);
   profile_img.setAttribute("width", "20px");
   profile_img.setAttribute("height", "20px");
   profile_img.classList.add("rounded-circle");
@@ -133,29 +125,29 @@ const renderBlock = (image) => {
     "bg-light"
   );
   return block;
-};
+}
 // end of render block
 
-/*
-const renderComment = (image, comments) => {
-
-};
-*/
-
 // render the timeline on query results
-function renderTimeline(images) {
+// let block_counter = 0;
+async function renderTimeline() {
   const timeline = document.querySelector("#timeline");
-  timeline.innerHTML = "";
-  //TODO load async by scrolling
-  /*
-  images.images.comments.forEach((image, comments, index) => {
-    comments[index] = 
-  });
-  */
+  for (const image of images) {
+    await timeline.appendChild(await renderBlock(image));
+  }
+}
 
-  images.images.forEach((image) => {
-    timeline.appendChild(renderBlock(image));
-  });
+// fetch images
+let images;
+async function fetchImages() {
+  const resRaw = await fetch("/images");
+  if (!resRaw.ok) {
+    const res = await resRaw.text();
+    alert(res);
+  } else {
+    images = await resRaw.json();
+    await renderTimeline();
+  }
 }
 
 // Log in
@@ -164,35 +156,25 @@ function renderTimeline(images) {
 // - password
 // - description
 // - profile_photo
-const login = async () => {
-  try {
+async function login() {
+  const user = await getUser(getCookie("username"));
+  if (user !== undefined) {
     const name = document.querySelector("#username");
     const des = document.querySelector("#bio");
     const img = document.querySelector("#profile_photo");
     const imgL = document.querySelector("#profile_photo_large");
-    const resRaw = await fetch("/get-user");
-    if (!resRaw) {
-      const res = await resRaw.text();
-      alert(res);
-    } else {
-      const res = await resRaw.json();
-      console.log(res);
-      img.setAttribute("src", res.profile_photo);
-      imgL.setAttribute("src", res.profile_photo);
-      name.innerHTML = res.username;
-      des.innerHTML = res.biography;
-
-      document.querySelector("#logout_link").classList.remove("d-none");
-      document.querySelector("#login_link").classList.add("d-none");
-
-      document.querySelectorAll(".a_log").forEach((value) => {
-        value.setAttribute("href", "home.html");
-      });
-    }
-  } catch (e) {
-    console.log("Err", e);
+    img.setAttribute("src", user.profile_photo);
+    imgL.setAttribute("src", user.profile_photo);
+    name.innerHTML = user.username;
+    des.innerHTML = user.biography;
+    document.querySelector("#logout_link").classList.remove("d-none");
+    document.querySelector("#login_link").classList.add("d-none");
+    document.querySelectorAll(".a_log").forEach((value) => {
+      value.setAttribute("href", "home.html");
+    });
   }
-};
+  await fetchImages();
+}
 
 // Log out
 document.querySelector("#logout_link").addEventListener("click", () => {
@@ -202,22 +184,6 @@ document.querySelector("#logout_link").addEventListener("click", () => {
   document.querySelectorAll(".a_log").forEach((value) => {
     value.setAttribute("href", "login.html");
   });
-});
-
-// fetch information of images
-window.addEventListener("load", async () => {
-  const resRaw = await fetch("/images");
-  if (!resRaw.ok) {
-    const res = await resRaw.text();
-    alert(res);
-  } else {
-    const res = await resRaw.json();
-    renderTimeline(res);
-  }
-
-  if (document.cookie.search("username") !== -1) {
-    login().then();
-  }
 });
 
 // Call upload window
@@ -261,7 +227,6 @@ upload_image_form.addEventListener("submit", async (event) => {
       method: "POST",
       body: formData,
     });
-    console.log("upload_image", resRaw);
     if (!resRaw.ok) {
       const res = await resRaw.text();
       alert(res);
@@ -271,3 +236,43 @@ upload_image_form.addEventListener("submit", async (event) => {
     console.log("Err", err);
   }
 });
+
+let users;
+async function getUser(username) {
+  if (users === undefined) {
+    try {
+      const usersRaw = await fetch("/get-all-users");
+      if (!usersRaw.ok) {
+        const res = await usersRaw.text();
+        alert(res);
+      } else {
+        users = await usersRaw.json();
+        users = await Object.values(users);
+      }
+    } catch (err) {
+      console.log("Err", err);
+    }
+  }
+  for (let user of users) {
+    if (user.username === username) {
+      return user;
+    }
+  }
+  return undefined;
+}
+
+function getCookie(cname) {
+  const name = cname + "=";
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const ca = decodedCookie.split(";");
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === " ") {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) === 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return undefined;
+}

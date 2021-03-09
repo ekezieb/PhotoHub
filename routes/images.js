@@ -19,7 +19,7 @@ router.get("/images", async (req, res) => {
     client = await getClient();
     console.log("Looking up images");
     const document = await findDocuments(client, "Images", {});
-    res.send({ images: document });
+    res.send(document);
   } catch (err) {
     console.log("Error ", err);
     res.status(400).send(err.name + ": " + err.message);
