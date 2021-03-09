@@ -99,7 +99,7 @@ router.post("/add-comment", async (req, res) => {
     // console.log("image_document" + image_document[0]);
     // console.log(image_document[0].comments);
 
-    const usr = req.cookies.username.value;
+    const usr = req.cookies.username;
     console.log(usr);
 
     await updateDocuments(client, "Images", image_document[0], {
