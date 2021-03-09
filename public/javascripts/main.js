@@ -2,7 +2,8 @@
 // 1. fetch all users
 // 2. log in
 // 3. fetch information of images
-
+// 4. generate timeline by scrolling
+let observer = new IntersectionObserver(renderTimeline);
 window.addEventListener("load", login);
 
 // render a block on given image information
@@ -129,11 +130,33 @@ async function renderBlock(image) {
 // end of render block
 
 // render the timeline on query results
-// let block_counter = 0;
+// generate 3 blocks once
+let block_counter = 0;
+const timeline = document.querySelector("#timeline");
 async function renderTimeline() {
-  const timeline = document.querySelector("#timeline");
-  for (const image of images) {
-    await timeline.appendChild(await renderBlock(image));
+  let flag = true;
+  for (let i = 0; i < 1; i++) {
+    if (block_counter === images.length) {
+      const prompt = document.createElement("div");
+      const endline = document.createElement("hr");
+
+      prompt.innerHTML = "You have reached the Mariana Trench";
+      prompt.classList.add("mt-5", "mb-2", "text-center");
+      endline.classList.add("mb-5");
+      timeline.appendChild(prompt);
+      timeline.appendChild(endline);
+
+      observer.disconnect();
+      break;
+    }
+    const new_block = await renderBlock(images[block_counter]);
+    if (flag) {
+      observer.disconnect();
+      observer.observe(new_block);
+      flag = false;
+    }
+    await timeline.appendChild(new_block);
+    block_counter++;
   }
 }
 
