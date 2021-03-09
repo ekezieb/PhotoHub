@@ -68,33 +68,49 @@ const renderBlock = (image) => {
   img.setAttribute("src", image.url);
   img.setAttribute("alt", "user_photo");
 
-  comments.setAttribute("id", "comments-form");
-  comments.setAttribute("action", "/add-comment");
-  comments.setAttribute("method", "POST");
-
   comment_inputbox.setAttribute("placeholder", "Add a comment...");
   comment_inputbox.setAttribute("type", "text");
   comment_inputbox.setAttribute("name", "comment");
 
-  comments.appendChild(comment_inputbox);
-
   post_btn.innerText = "post";
   post_btn.setAttribute("type", "submit");
-
-  // post_btn.addEventListener("click", async () => {
-  //   comment_list = [];
-  //   try {
-  //     const resRaw = await fetch("/view-comment");
-  //   }
-  // });
-
-  comments.appendChild(post_btn);
 
   comment0.innerText = image.comments[0] === undefined ? "" : image.comments[0];
   comment1.innerText = image.comments[1] === undefined ? "" : image.comments[1];
 
+  comments.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const c = comment_inputbox.value;
+    if (c === "") {
+      alert("Comment cannot be empty");
+      return;
+    }
+    comments.reset();
+    const new_comment = document.createElement("div");
+    // const profile_photo_url = getUser(document.cookie.username).profile_photo;
+    // new_comment.innerHTML = document.cookie.username + ": " + c;
+    new_comment.innerHTML = c;
+    new_comment.classList.add("align-self", "m-2");
+    comments.insertBefore(new_comment, comments[0]);
+
+    //TODO
+    const resRaw = await fetch("/add-comment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ comment: c, image_name: image.image_name }),
+    });
+    if (!resRaw.ok) {
+      const res = await resRaw.text();
+      alert(res);
+    }
+  });
+
   comments.appendChild(comment0);
   comments.appendChild(comment1);
+  comments.appendChild(comment_inputbox);
+  comments.appendChild(post_btn);
 
   block.appendChild(block_top);
   block.appendChild(img);

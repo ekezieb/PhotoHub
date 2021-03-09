@@ -87,27 +87,16 @@ router.post("/add-comment", async (req, res) => {
     client = await getClient();
     console.log("Posting a comment");
 
-    const commentbody = req.body.comment;
+    const comment_body = req.body.comment;
     //console.log(commentbody);
 
-    await insertDocuments(client, "comments-collection", {
-      comment: commentbody,
-      username: req.cookies.username,
+    // access img.comments. {$set {key(username): new value()}}
+    const image_document = await findDocuments(client, "Images", {
+      image_name: req.body.image_name,
     });
-    /*const data = {
-      username: req.cookies.username,
-      comment: commentbody,
-    };
+    await updateDocuments(client, "Images", image_document[0], {});
 
-    await updateDocuments(
-      client,
-      "comments-collection",
-      { _id: ObjectId(id) },
-      { $set: data }
-    );
-    */
-    //res.sendStatus(200);
-    res.send("Data received\n" + JSON.stringify(commentbody));
+    res.sendStatus(200);
   } catch (err) {
     console.log("Error ", err);
     res.status(400).send(err.name + ": " + err.message);
