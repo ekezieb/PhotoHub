@@ -14,6 +14,9 @@ async function getAllUsers() {
 }
 
 async function getUser(users, username) {
+  if (users === undefined) {
+    users = await getAllUsers();
+  }
   for (let user of users) {
     if (user.username === username) {
       return user;
@@ -62,4 +65,61 @@ async function logout() {
   }
 }
 
-export { getAllUsers, getUser, login, logout };
+function callUploadWindow() {
+  const shade = document.querySelector("#shade");
+  const upload_window = document.querySelector("#upload_window");
+  upload_window.classList.remove("d-none");
+  shade.classList.remove("d-none");
+  shade.addEventListener("click", hideUploadWindow, { once: true });
+}
+
+function hideUploadWindow() {
+  const upload_button = document.querySelector("#upload_button");
+  const upload_window = document.querySelector("#upload_window");
+  const shade = document.querySelector("#shade");
+  upload_window.classList.add("d-none");
+  shade.classList.add("d-none");
+  upload_button.addEventListener("click", callUploadWindow, { once: true });
+}
+
+function preview() {
+  const upload = document.querySelector("#upload");
+  const upload_image = document.querySelector("#upload_image");
+  const oFReader = new FileReader();
+  if (upload.files[0]) {
+    oFReader.readAsDataURL(upload.files[0]);
+    oFReader.onload = function (oFREvent) {
+      upload_image.src = oFREvent.target.result;
+    };
+    upload_image.classList.remove("d-none");
+  }
+}
+
+async function uploadImage(event) {
+  event.preventDefault();
+  const upload_image_form = document.querySelector("#upload_image_form");
+  try {
+    const formData = new FormData(upload_image_form);
+    const resRaw = await fetch("/upload-image", {
+      method: "POST",
+      body: formData,
+    });
+    if (!resRaw.ok) {
+      const res = await resRaw.text();
+      alert(res);
+    }
+    location.reload();
+  } catch (err) {
+    console.log("Err", err);
+  }
+}
+
+export {
+  getAllUsers,
+  getUser,
+  login,
+  logout,
+  callUploadWindow,
+  preview,
+  uploadImage,
+};

@@ -13,10 +13,28 @@ const client = require("../db/getClient").getClient();
 
 const imageType = require("image-type");
 
-router.get("/images", async (req, res) => {
+router.post("/get-images", async (req, res) => {
   try {
     console.log("Looking up images");
-    const document = await findDocuments(client, "Images", {});
+    const query = req.body;
+    const document = await findDocuments(client, "Images", query);
+    res.send(document);
+  } catch (err) {
+    console.log("Error ", err);
+    res.status(400).send(err.name + ": " + err.message);
+  }
+});
+
+router.get("/get-my-images", async (req, res) => {
+  const username = req.session.username;
+  if (username === undefined) {
+    res.sendStatus(401);
+  }
+  try {
+    console.log("Looking up my images");
+    const document = await findDocuments(client, "Images", {
+      username: username,
+    });
     res.send(document);
   } catch (err) {
     console.log("Error ", err);

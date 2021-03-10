@@ -72,7 +72,7 @@
   <script type="module" src="javascripts/home.js"></script>
 </head>
 
-<body>
+<body class="position-relative">
 <!--NAV-->
 <nav class="navbar position-sticky navbar-light bg-light" style="z-index: 3">
   <div class="container px-lg-5">
@@ -99,7 +99,28 @@
   </div>
 </nav>
 
-<div class="container px-lg-5" style="height: 100vh">
+<!--UPLOAD-->
+<div id="shade" class="d-none"
+     style="width: 100vw; height: 100vh; z-index: 2; position: fixed; top: 0; background-color: aliceblue; opacity:
+       40%"></div>
+<aside class="position-fixed start-50 translate-middle-x mt-3 d-none" style="z-index: 1200; min-width: 450px"
+       id="upload_window">
+  <div class="bg-light border border-dark rounded py-2">
+    <form class="mx-auto py-2" id="upload_image_form" style="z-index: 3">
+      <h4 class="pb-1 text-center">Upload Image</h4>
+      <input type="file" class="form-control my-2" name="image" id="upload" style="width: 90%; margin-left: 5%">
+      <img class="img-thumbnail my-2 d-none" alt="thumbnail_image" src=""
+           id="upload_image" style="width: 90%; margin-left: 5%; max-height: 75vh">
+      <button class="btn btn-primary input-group-text text-center my-2" type="submit"
+              style="width: 90%; margin-left: 5%">Submit
+      </button>
+    </form>
+  </div>
+</aside>
+
+<!--CONTENT-->
+<div class="container px-lg-5">
+  <!--PROFILE-->
   <div class="row align-self-center my-5" style="width: 100%">
     <div class="col-lg-2"></div>
     <div class="col-lg-2">
@@ -115,24 +136,32 @@
       <a href="" class="subheading d-none" style="font-size: large" id="logout_link">logout</a>
     </div>
   </div>
-  <!--UPDATE BIOGRAPHY-->
-  <div class="my-5">
-    <h3>Update Biography</h3>
-    <form id="update_bio">
-      <label>New: <input type="text" name="bio" /></label>
-      <button type="submit">Update</button>
-    </form>
-  </div>
-  <hr />
-  <!--UPDATE PROFILE PHOTO-->
-  <div class="my-5">
-    <h3>Update Profile Photo</h3>
-    <form id="update_profile_photo" method="post" enctype="multipart/form-data">
-      <label>Profile Photo: <input type="file" name="profile_photo" /></label>
-      <button type="submit">Update</button>
-    </form>
-  </div>
-  <hr />
+  <hr>
+  <!--GALLERY-->
+  <div class="row" id="gallery"></div>
 </div>
+
+<aside class="fixed-top start-50 translate-middle-x mt-3 d-none" style="z-index: 1200; min-width: 450px; top: 56px"
+       id="update_profile_window">
+  <div class="bg-light border border-dark rounded px-5 py-2">
+    <!--UPDATE BIOGRAPHY-->
+    <div class="my-5">
+      <h3>Update Biography</h3>
+      <form id="update_bio">
+        <label>New: <input type="text" name="bio" /></label>
+        <button type="submit">Update</button>
+      </form>
+    </div>
+    <!--UPDATE PROFILE PHOTO-->
+    <div class="my-5">
+      <h3>Update Profile Photo</h3>
+      <form id="update_profile_photo" method="post" enctype="multipart/form-data">
+        <label>Profile Photo: <input type="file" name="profile_photo" /></label>
+        <button type="submit">Update</button>
+      </form>
+    </div>
+  </div>
+</aside>
+
 </body>
 </html>

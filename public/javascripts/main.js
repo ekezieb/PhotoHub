@@ -13,7 +13,7 @@ utils.login().then(() => {
       users = res;
     })
     .then(() => {
-      fetchImages()
+      getImages()
         .then((res) => {
           images = res;
         })
@@ -33,7 +33,9 @@ utils.login().then(() => {
 // - comments[]
 async function renderBlock(image) {
   const profile_img = document.createElement("img");
+  const authorCol = document.createElement("div");
   const author = document.createElement("div");
+  const bio = document.createElement("div");
   const del_btn = document.createElement("div");
   const del_icon = document.createElement("svg");
   const block_top = document.createElement("div");
@@ -45,94 +47,112 @@ async function renderBlock(image) {
   const comment1 = document.createElement("div");
   const block = document.createElement("div");
   const user = await utils.getUser(users, image.username);
-  profile_img.setAttribute("src", user.profile_photo);
-  profile_img.setAttribute("width", "20px");
-  profile_img.setAttribute("height", "20px");
-  profile_img.classList.add("rounded-circle");
 
-  author.innerHTML = image.username;
-  del_btn.addEventListener("click", async () => {
+  // Set block top
+  {
+    profile_img.setAttribute("src", user.profile_photo);
+    profile_img.setAttribute("width", "30px");
+    profile_img.setAttribute("height", "30px");
+    profile_img.classList.add("rounded-circle");
+
+    author.innerHTML = image.username;
+    author.style.fontWeight = "bold";
+    bio.innerHTML = user.biography;
+    bio.style.fontSize = "xx-small";
+    authorCol.appendChild(author);
+    authorCol.appendChild(bio);
+
+    del_btn.addEventListener("click", async () => {
+      try {
+        const resRaw = await fetch("/delete-image", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url: image.url }),
+        });
+        if (!resRaw.ok) {
+          const res = await resRaw.text();
+          alert(res);
+        } else {
+          document.querySelector("#timeline").removeChild(block);
+        }
+      } catch (e) {
+        console.log("Err ", e);
+      }
+    });
+
+    del_btn.appendChild(del_icon);
+    block_top.appendChild(profile_img);
+    block_top.appendChild(authorCol);
+    block_top.appendChild(del_btn);
+  }
+
+  // Set image
+  img.setAttribute("src", image.url);
+  img.setAttribute("alt", "user_photo");
+
+  // Set comments
+  {
+    comment_inputbox.setAttribute("placeholder", "Add a comment...");
+    comment_inputbox.setAttribute("type", "text");
+    comment_inputbox.setAttribute("name", "comment");
+
+    post_btn.innerText = "post";
+    post_btn.setAttribute("type", "submit");
+
     try {
-      const resRaw = await fetch("/delete-image", {
-        method: "DELETE",
+      const c0 = image.comments[0];
+      const c1 = image.comments[1];
+      comment0.innerText = Object.keys(c0)[0] + ": " + Object.values(c0)[0];
+      comment1.innerText = Object.keys(c1)[0] + ": " + Object.values(c1)[0];
+    } catch (err) {
+      console.log("Comments not found", err);
+    }
+    comments.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const c = comment_inputbox.value;
+      if (c === "") {
+        alert("Comment cannot be empty");
+        return;
+      }
+      comments.reset();
+      const new_comment = document.createElement("div");
+      // const profile_photo_url = getUser(document.cookie.username).profile_photo;
+      // new_comment.innerHTML = document.cookie.username + ": " + c;
+      new_comment.innerHTML = c;
+      new_comment.classList.add("align-self", "m-2");
+      comments.insertBefore(new_comment, comments[0]);
+
+      //TODO
+      const resRaw = await fetch("/add-comment", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url: image.url }),
+        body: JSON.stringify({ comment: c, image_name: image.image_name }),
       });
       if (!resRaw.ok) {
         const res = await resRaw.text();
         alert(res);
-      } else {
-        document.querySelector("#timeline").removeChild(block);
       }
-    } catch (e) {
-      console.log("Err ", e);
-    }
-  });
-  del_btn.appendChild(del_icon);
-  block_top.appendChild(profile_img);
-  block_top.appendChild(author);
-  block_top.appendChild(del_btn);
-
-  img.setAttribute("src", image.url);
-  img.setAttribute("alt", "user_photo");
-
-  comment_inputbox.setAttribute("placeholder", "Add a comment...");
-  comment_inputbox.setAttribute("type", "text");
-  comment_inputbox.setAttribute("name", "comment");
-
-  post_btn.innerText = "post";
-  post_btn.setAttribute("type", "submit");
-
-  try {
-    const c0 = image.comments[0];
-    const c1 = image.comments[1];
-    comment0.innerText = Object.keys(c0)[0] + ": " + Object.values(c0)[0];
-    comment1.innerText = Object.keys(c1)[0] + ": " + Object.values(c1)[0];
-  } catch (err) {
-    console.log("Comments not found", err);
-  }
-  comments.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const c = comment_inputbox.value;
-    if (c === "") {
-      alert("Comment cannot be empty");
-      return;
-    }
-    comments.reset();
-    const new_comment = document.createElement("div");
-    // const profile_photo_url = getUser(document.cookie.username).profile_photo;
-    // new_comment.innerHTML = document.cookie.username + ": " + c;
-    new_comment.innerHTML = c;
-    new_comment.classList.add("align-self", "m-2");
-    comments.insertBefore(new_comment, comments[0]);
-
-    //TODO
-    const resRaw = await fetch("/add-comment", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ comment: c, image_name: image.image_name }),
     });
-    if (!resRaw.ok) {
-      const res = await resRaw.text();
-      alert(res);
-    }
-  });
 
-  comments.appendChild(comment0);
-  comments.appendChild(comment1);
-  comments.appendChild(comment_inputbox);
-  comments.appendChild(post_btn);
+    comments.appendChild(comment0);
+    comments.appendChild(comment1);
+    comments.appendChild(comment_inputbox);
+    comments.appendChild(post_btn);
+  }
 
   block.appendChild(block_top);
   block.appendChild(img);
   block.appendChild(comments);
 
+  // Set classes
   profile_img.classList.add("d-inline-block", "align-self-center", "m-2");
-  author.classList.add("d-inline-block", "align-self-center", "m-2", "me-auto");
+  author.classList.add("align-self-center", "my-1");
+  bio.classList.add("align-self-center", "my-1");
+  authorCol.classList.add("d-inline-block", "m-2", "me-auto");
   del_btn.classList.add("d-inline-block", "align-self-center", "m-2");
   del_icon.classList.add("fas", "fa-times", "fas-2x");
   block_top.classList.add("d-flex");
@@ -152,13 +172,13 @@ async function renderBlock(image) {
 // end of render block
 
 // render the timeline on query results
-// generate 3 blocks once
+// generate 2 blocks once
 let block_counter = 0;
 let flag;
 const timeline = document.querySelector("#timeline");
 async function renderTimeline(entries, observer) {
   flag = true;
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 2; i++) {
     if (block_counter === images.length) {
       const prompt = document.createElement("div");
       const endLine = document.createElement("hr");
@@ -187,9 +207,15 @@ async function renderTimeline(entries, observer) {
 }
 
 // fetch images
-async function fetchImages() {
+async function getImages() {
   let images;
-  const resRaw = await fetch("/images");
+  const resRaw = await fetch("/get-images", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({}),
+  });
   if (!resRaw.ok) {
     const res = await resRaw.text();
     alert(res);
@@ -202,53 +228,14 @@ async function fetchImages() {
 // Log out
 document.querySelector("#logout_link").addEventListener("click", utils.logout);
 
-// Call upload window
-const shade = document.querySelector("#shade");
+// Set upload window
 const upload_button = document.querySelector("#upload_button");
-const upload_window = document.querySelector("#upload_window");
+upload_button.addEventListener("click", utils.callUploadWindow, { once: true });
 
-function callUploadWindow() {
-  upload_window.classList.remove("d-none");
-  shade.classList.remove("d-none");
-  shade.addEventListener("click", hideUploadWindow, { once: true });
-}
-
-function hideUploadWindow() {
-  upload_window.classList.add("d-none");
-  shade.classList.add("d-none");
-  upload_button.addEventListener("click", callUploadWindow, { once: true });
-}
-
-upload_button.addEventListener("click", callUploadWindow, { once: true });
-
-// Thumbnail
-const upload_image_form = document.querySelector("#upload_image_form");
-const upload_image = document.querySelector("#upload_image");
+// Preview
 const upload = document.querySelector("#upload");
-upload.addEventListener("change", () => {
-  const oFReader = new FileReader();
-  oFReader.readAsDataURL(upload.files[0]);
-  oFReader.onload = function (oFREvent) {
-    upload_image.src = oFREvent.target.result;
-  };
-  upload_image.classList.remove("d-none");
-});
+upload.addEventListener("change", utils.preview);
 
 // Upload an image
-upload_image_form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  try {
-    const formData = new FormData(upload_image_form);
-    const resRaw = await fetch("/upload-image", {
-      method: "POST",
-      body: formData,
-    });
-    if (!resRaw.ok) {
-      const res = await resRaw.text();
-      alert(res);
-    }
-    location.reload();
-  } catch (err) {
-    console.log("Err", err);
-  }
-});
+const upload_image_form = document.querySelector("#upload_image_form");
+upload_image_form.addEventListener("submit", utils.uploadImage);
