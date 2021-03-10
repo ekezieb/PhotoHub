@@ -59,18 +59,6 @@ async function renderBlock(image) {
 
   img.setAttribute("src", image.url);
   img.setAttribute("alt", "user_photo");
-  // TODO
-  // img.addEventListener("load", () => {
-  //   if (flag) {
-  //     console.log(block_counter, " y pos ", block.getBoundingClientRect().y);
-  //     // observer.disconnect();
-  //     observer.observe(block);
-  //     console.log("root ", observer.root);
-  //     console.log("thres ", observer.thresholds);
-  //     console.log("entry ", observer.takeRecords());
-  //     flag = false;
-  //   }
-  // });
 
   comment_inputbox.setAttribute("placeholder", "Add a comment...");
   comment_inputbox.setAttribute("type", "text");
@@ -79,9 +67,12 @@ async function renderBlock(image) {
   post_btn.innerText = "post";
   post_btn.setAttribute("type", "submit");
 
-  comment0.innerText = image.comments[0] === undefined ? "" : image.comments[0];
-  comment1.innerText = image.comments[1] === undefined ? "" : image.comments[1];
-
+  try {
+    const c0 = image.comments[0];
+    const c1 = image.comments[1];
+    comment0.innerText = Object.keys(c0)[0] + ": " + Object.values(c0)[0];
+    comment1.innerText = Object.keys(c1)[0] + ": " + Object.values(c1)[0];
+  } catch (err) {}
   comments.addEventListener("submit", async (event) => {
     event.preventDefault();
     const c = comment_inputbox.value;
