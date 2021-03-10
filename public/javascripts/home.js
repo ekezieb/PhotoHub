@@ -45,8 +45,10 @@ update_bio_form.addEventListener("submit", async (event) => {
 
 window.addEventListener("load", login);
 async function login() {
-  const user = await getUser(getCookie("username"));
-  if (user !== undefined) {
+  const userRaw = await fetch("/get-user");
+  console.log(userRaw);
+  if (userRaw.ok) {
+    const user = await userRaw.json();
     const name = document.querySelector("#username");
     const des = document.querySelector("#bio");
     const img = document.querySelector("#profile_photo");
@@ -61,6 +63,7 @@ async function login() {
       value.setAttribute("href", "home.html");
     });
   }
+  await getUser("Ziqing");
 }
 
 let users;

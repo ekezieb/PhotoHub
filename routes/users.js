@@ -57,7 +57,10 @@ router.post("/login", async (req, res) => {
       req.session.username = user.username;
       req.session.profile_photo = user.profile_photo;
       req.session.biography = user.biography;
-      console.log("record session", req.session);
+      // for debug
+      res.cookie("username", result[0].username, {
+        maxAge: 86400000,
+      }); // 1 day
       res.sendStatus(200);
     }
   } catch (err) {
@@ -67,22 +70,57 @@ router.post("/login", async (req, res) => {
 });
 
 router.get("/get-user", async (req, res) => {
-  console.log("session", req.session);
+  // for debug
   if (req.session.username === undefined) {
-    return res.status(401).send("Please log in first.");
+    if (req.cookies.username === undefined) {
+      return res.status(401).send("Please log in first.");
+    }
+    try {
+      const result = await findDocuments(client, "Users", {
+        username: req.cookies.username,
+      });
+      if (result.length === 0) {
+        res.sendStatus(404);
+      } else {
+        const user = result[0];
+        req.session.username = user.username;
+        req.session.profile_photo = user.profile_photo;
+        req.session.biography = user.biography;
+        const data = {
+          username: req.session.username,
+          profile_photo: req.session.profile_photo,
+          biography: req.session.biography,
+        };
+        res.send(data);
+      }
+    } catch (err) {
+      console.log("Error", err);
+      res.status(400).send(err.name + ": " + err.message);
+    }
+  } else {
+    const data = {
+      username: req.session.username,
+      profile_photo: req.session.profile_photo,
+      biography: req.session.biography,
+    };
+    res.send(data);
   }
-  const user = {
-    username: req.session.username,
-    profile_photo: req.session.profile_photo,
-    biography: req.session.biography,
-  };
-  res.send(user);
+
+  //// session only
+  // if (req.session.username === undefined) {
+  //   return res.status(401).send("Please log in first.");
+  // }
+  // const user = {
+  //   username: req.session.username,
+  //   profile_photo: req.session.profile_photo,
+  //   biography: req.session.biography,
+  // };
+  // res.send(user);
 });
 
 router.get("/logout", async (req, res) => {
   req.session.destroy((err) => {
     console.log("Error", err);
-    res.status(400).send(err.name + ": " + err.message);
   });
   res.sendStatus(200);
 });
@@ -121,6 +159,7 @@ router.put("/update-bio", async (req, res) => {
       { username: req.session.username },
       { $set: { biography: req.body.biography } }
     );
+    req.session.biography = req.body.biography;
     res.sendStatus(200);
   } catch (err) {
     console.log("Error", err);
@@ -167,6 +206,7 @@ router.put("/update-profile-photo", async (req, res) => {
       { username: username },
       { $set: data }
     );
+    req.session.profile_photo = data.profile_photo;
     // move
     file = await sharp(file.data);
     file = await file.resize(200, 200);
