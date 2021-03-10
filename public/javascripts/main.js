@@ -3,7 +3,11 @@
 // 2. log in
 // 3. fetch information of images
 // 4. generate timeline by scrolling
-let observer = new IntersectionObserver(renderTimeline);
+let observer = new IntersectionObserver(renderTimeline, {
+  root: null,
+  rootMargin: "0px",
+  threshold: 1.0,
+});
 window.addEventListener("load", login);
 
 // render a block on given image information
@@ -60,6 +64,17 @@ async function renderBlock(image) {
 
   img.setAttribute("src", image.url);
   img.setAttribute("alt", "user_photo");
+  // TODO
+  img.addEventListener("load", () => {
+    if (flag) {
+      console.log(block_counter, " y pos ", block.getBoundingClientRect().y);
+      observer.disconnect();
+      observer.observe(block);
+      console.log("root ", observer.root);
+      console.log("thres ", observer.thresholds);
+      flag = false;
+    }
+  });
 
   comment_inputbox.setAttribute("placeholder", "Add a comment...");
   comment_inputbox.setAttribute("type", "text");
@@ -132,9 +147,10 @@ async function renderBlock(image) {
 // render the timeline on query results
 // generate 3 blocks once
 let block_counter = 0;
+let flag;
 const timeline = document.querySelector("#timeline");
 async function renderTimeline() {
-  let flag = true;
+  flag = true;
   for (let i = 0; i < 1; i++) {
     if (block_counter === images.length) {
       const prompt = document.createElement("div");
@@ -150,11 +166,6 @@ async function renderTimeline() {
       break;
     }
     const new_block = await renderBlock(images[block_counter]);
-    if (flag) {
-      observer.disconnect();
-      observer.observe(new_block);
-      flag = false;
-    }
     await timeline.appendChild(new_block);
     block_counter++;
   }

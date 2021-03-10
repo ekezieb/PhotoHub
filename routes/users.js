@@ -185,7 +185,7 @@ router.put("/update-profile-photo", async (req, res) => {
     );
     // move
     file = await sharp(file.data);
-    file = await file.resize(200);
+    file = await file.resize(200, 200);
     await file.toFile(filepath, (err) => {
       if (err) res.status(400).send(err.name + ": " + err.message);
       else res.sendStatus(200);
