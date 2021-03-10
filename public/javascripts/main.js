@@ -1,9 +1,28 @@
+import * as utils from "./utils.js";
+
 // On load
-// 1. fetch all users
-// 2. log in
+// 1. log in
+// 2. fetch all users
 // 3. fetch information of images
 // 4. generate timeline by scrolling
-window.addEventListener("load", login);
+let users, images;
+utils.login().then(() => {
+  utils
+    .getAllUsers()
+    .then((res) => {
+      users = res;
+    })
+    .then(() => {
+      fetchImages()
+        .then((res) => {
+          images = res;
+        })
+        .then(() => {
+          let observer = new IntersectionObserver(renderTimeline);
+          observer.observe(timeline);
+        });
+    });
+});
 
 // render a block on given image information
 // image
@@ -25,9 +44,8 @@ async function renderBlock(image) {
   const comment0 = document.createElement("div");
   const comment1 = document.createElement("div");
   const block = document.createElement("div");
-
-  const user = await getUser(image.username);
-  await profile_img.setAttribute("src", user.profile_photo);
+  const user = await utils.getUser(users, image.username);
+  profile_img.setAttribute("src", user.profile_photo);
   profile_img.setAttribute("width", "20px");
   profile_img.setAttribute("height", "20px");
   profile_img.classList.add("rounded-circle");
@@ -72,7 +90,9 @@ async function renderBlock(image) {
     const c1 = image.comments[1];
     comment0.innerText = Object.keys(c0)[0] + ": " + Object.values(c0)[0];
     comment1.innerText = Object.keys(c1)[0] + ": " + Object.values(c1)[0];
-  } catch (err) {}
+  } catch (err) {
+    console.log("Comments not found", err);
+  }
   comments.addEventListener("submit", async (event) => {
     event.preventDefault();
     const c = comment_inputbox.value;
@@ -138,22 +158,23 @@ let flag;
 const timeline = document.querySelector("#timeline");
 async function renderTimeline(entries, observer) {
   flag = true;
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < 3; i++) {
     if (block_counter === images.length) {
       const prompt = document.createElement("div");
-      const endline = document.createElement("hr");
+      const endLine = document.createElement("hr");
 
       prompt.innerHTML = "You have reached the Mariana Trench";
       prompt.classList.add("mt-5", "mb-2", "text-center");
-      endline.classList.add("mb-5");
+      endLine.classList.add("mb-5");
       timeline.appendChild(prompt);
-      timeline.appendChild(endline);
+      timeline.appendChild(endLine);
 
       observer.disconnect();
       break;
     }
     if (entries.length !== 0 && entries[0].isIntersecting) {
-      const new_block = await renderBlock(images[block_counter]);
+      const image = images[block_counter];
+      const new_block = await renderBlock(image);
       await timeline.appendChild(new_block);
       if (flag) {
         observer.disconnect();
@@ -166,62 +187,20 @@ async function renderTimeline(entries, observer) {
 }
 
 // fetch images
-let images;
 async function fetchImages() {
+  let images;
   const resRaw = await fetch("/images");
   if (!resRaw.ok) {
     const res = await resRaw.text();
     alert(res);
   } else {
     images = await resRaw.json();
-    let observer = new IntersectionObserver(renderTimeline);
-    observer.observe(timeline);
   }
-}
-
-// Log in
-// User
-// - username
-// - password
-// - description
-// - profile_photo
-async function login() {
-  const userRaw = await fetch("/get-user");
-  console.log(userRaw);
-  if (userRaw.ok) {
-    const user = await userRaw.json();
-    const name = document.querySelector("#username");
-    const des = document.querySelector("#bio");
-    const img = document.querySelector("#profile_photo");
-    const imgL = document.querySelector("#profile_photo_large");
-    img.setAttribute("src", user.profile_photo);
-    imgL.setAttribute("src", user.profile_photo);
-    name.innerHTML = user.username;
-    des.innerHTML = user.biography;
-    document.querySelector("#logout_link").classList.remove("d-none");
-    document.querySelector("#login_link").classList.add("d-none");
-    document.querySelectorAll(".a_log").forEach((value) => {
-      value.setAttribute("href", "home.html");
-    });
-  }
-  await getUser("Ziqing");
-  await fetchImages();
+  return images;
 }
 
 // Log out
-document.querySelector("#logout_link").addEventListener("click", async () => {
-  document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  document.querySelector("#logout_link").classList.add("d-none");
-  document.querySelector("#login_link").classList.remove("d-none");
-  document.querySelectorAll(".a_log").forEach((value) => {
-    value.setAttribute("href", "login.html");
-  });
-  const resRaw = await fetch("/logout");
-  if (!resRaw.ok) {
-    const res = await resRaw.text();
-    alert(res);
-  }
-});
+document.querySelector("#logout_link").addEventListener("click", utils.logout);
 
 // Call upload window
 const shade = document.querySelector("#shade");
@@ -273,43 +252,3 @@ upload_image_form.addEventListener("submit", async (event) => {
     console.log("Err", err);
   }
 });
-
-let users;
-async function getUser(username) {
-  if (users === undefined) {
-    try {
-      const usersRaw = await fetch("/get-all-users");
-      if (!usersRaw.ok) {
-        const res = await usersRaw.text();
-        alert(res);
-      } else {
-        users = await usersRaw.json();
-        users = await Object.values(users);
-      }
-    } catch (err) {
-      console.log("Err", err);
-    }
-  }
-  for (let user of users) {
-    if (user.username === username) {
-      return user;
-    }
-  }
-  return undefined;
-}
-
-function getCookie(cname) {
-  const name = cname + "=";
-  const decodedCookie = decodeURIComponent(document.cookie);
-  const ca = decodedCookie.split(";");
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) === " ") {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) === 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return undefined;
-}
