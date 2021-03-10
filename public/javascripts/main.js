@@ -186,8 +186,10 @@ async function fetchImages() {
 // - description
 // - profile_photo
 async function login() {
-  const user = await getUser(getCookie("username"));
-  if (user !== undefined) {
+  const userRaw = await fetch("/get-user");
+  console.log(userRaw);
+  if (userRaw.ok) {
+    const user = await userRaw.json();
     const name = document.querySelector("#username");
     const des = document.querySelector("#bio");
     const img = document.querySelector("#profile_photo");
@@ -202,17 +204,23 @@ async function login() {
       value.setAttribute("href", "home.html");
     });
   }
+  await getUser("Ziqing");
   await fetchImages();
 }
 
 // Log out
-document.querySelector("#logout_link").addEventListener("click", () => {
+document.querySelector("#logout_link").addEventListener("click", async () => {
   document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   document.querySelector("#logout_link").classList.add("d-none");
   document.querySelector("#login_link").classList.remove("d-none");
   document.querySelectorAll(".a_log").forEach((value) => {
     value.setAttribute("href", "login.html");
   });
+  const resRaw = await fetch("/logout");
+  if (!resRaw.ok) {
+    const res = await resRaw.text();
+    alert(res);
+  }
 });
 
 // Call upload window

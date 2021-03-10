@@ -9,28 +9,23 @@ const insertDocuments = require("../db/insertDocument");
 const updateDocuments = require("../db/updateDocuments");
 const deleteDocuments = require("../db/deleteDocuments");
 
-const getClient = require("../db/getClient");
-let client;
+const client = require("../db/getClient").getClient();
 
 const imageType = require("image-type");
 
 router.get("/images", async (req, res) => {
   try {
-    client = await getClient();
     console.log("Looking up images");
     const document = await findDocuments(client, "Images", {});
     res.send(document);
   } catch (err) {
     console.log("Error ", err);
     res.status(400).send(err.name + ": " + err.message);
-  } finally {
-    client.close();
-    console.log("Connection closed.");
   }
 });
 
 router.post("/upload-image", async (req, res) => {
-  if (req.cookies.username === undefined) {
+  if (req.session.username === undefined) {
     return res.status(401).send("Please log in first.");
   }
   let file, filename, filepath;
@@ -47,7 +42,6 @@ router.post("/upload-image", async (req, res) => {
   }
   // Create a document in the database
   try {
-    client = await getClient();
     console.log("Uploading new image");
     const id = await insertDocuments(client, "Images", {});
     // the filename will be decided by random id
@@ -55,7 +49,7 @@ router.post("/upload-image", async (req, res) => {
     filepath = __dirname + "/../public/images/" + filename;
     const data = {
       image_name: filename,
-      username: req.cookies.username,
+      username: req.session.username,
       url: "images/" + filename,
       number_liked: 0,
       comments: {},
@@ -75,18 +69,14 @@ router.post("/upload-image", async (req, res) => {
   } catch (err) {
     console.log("Error ", err);
     res.status(400).send(err.name + ": " + err.message);
-  } finally {
-    client.close();
-    console.log("Connection closed.");
   }
 });
 
 router.post("/add-comment", async (req, res) => {
-  if (req.cookies.username === undefined) {
+  if (req.session.username === undefined) {
     return res.status(401).send("Please log in first.");
   }
   try {
-    client = await getClient();
     console.log("Posting a comment");
 
     const comment_body = req.body.comment;
@@ -94,7 +84,7 @@ router.post("/add-comment", async (req, res) => {
       image_name: req.body.image_name,
     });
 
-    const usr = req.cookies.username;
+    const usr = req.session.username;
     console.log(image_document[0].comments);
 
     await updateDocuments(client, "Images", image_document[0], {
@@ -103,7 +93,7 @@ router.post("/add-comment", async (req, res) => {
 
     // await updateDocuments(client, "Images", image_document[0], {
     //   $set: {
-    //     "comments.username": req.cookies.username,
+    //     "comments.username": req.session.username,
     //     "comments.commentText": comment_body,
     //   },
     // });
@@ -114,35 +104,27 @@ router.post("/add-comment", async (req, res) => {
   } catch (err) {
     console.log("Error ", err);
     res.status(400).send(err.name + ": " + err.message);
-  } finally {
-    client.close();
-    console.log("Connection closed.");
   }
 });
 
 router.get("/view-comment", async (req, res) => {
   try {
-    client = await getClient();
     const comment = await findDocuments(client, "comments-collection", {});
     res.send(comment);
   } catch (err) {
     console.log("Error ", err);
     res.status(400).send(err.name + ": " + err.message);
-  } finally {
-    client.close();
-    console.log("Connection closed.");
   }
 });
 
 router.delete("/delete-image", async (req, res) => {
-  if (req.cookies.username === undefined) {
+  if (req.session.username === undefined) {
     return res.status(401).send("Please log in first.");
   }
   const url = req.body;
   try {
-    client = await getClient();
     const user = await findDocuments(client, "Images", url);
-    if (user[0].username !== req.cookies.username) {
+    if (user[0].username !== req.session.username) {
       return res.status(401).send("Cannot delete other's photo.");
     }
     await deleteDocuments(client, "Images", url);
@@ -154,9 +136,6 @@ router.delete("/delete-image", async (req, res) => {
   } catch (err) {
     console.log("Error ", err);
     res.status(400).send(err.name + ": " + err.message);
-  } finally {
-    client.close();
-    console.log("Connection closed.");
   }
 });
 
