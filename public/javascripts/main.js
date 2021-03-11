@@ -1,9 +1,29 @@
+import * as utils from "./utils.js";
+import { fadeIn } from "./utils.js";
+
 // On load
-// 1. fetch all users
-// 2. log in
+// 1. log in
+// 2. fetch all users
 // 3. fetch information of images
 // 4. generate timeline by scrolling
-window.addEventListener("load", login);
+let users, images;
+utils.login().then(() => {
+  utils
+    .getAllUsers()
+    .then((res) => {
+      users = res;
+    })
+    .then(() => {
+      getImages()
+        .then((res) => {
+          images = res;
+        })
+        .then(() => {
+          let observer = new IntersectionObserver(renderTimeline);
+          observer.observe(timeline);
+        });
+    });
+});
 
 // render a block on given image information
 // image
@@ -14,7 +34,9 @@ window.addEventListener("load", login);
 // - comments[]
 async function renderBlock(image) {
   const profile_img = document.createElement("img");
+  const authorCol = document.createElement("div");
   const author = document.createElement("div");
+  const bio = document.createElement("div");
   const del_btn = document.createElement("div");
   const del_icon = document.createElement("svg");
   const block_top = document.createElement("div");
@@ -25,136 +47,153 @@ async function renderBlock(image) {
   const comment0 = document.createElement("div");
   const comment1 = document.createElement("div");
   const block = document.createElement("div");
+  const user = await utils.getUser(users, image.username);
 
-  const user = await getUser(image.username);
-  await profile_img.setAttribute("src", user.profile_photo);
-  profile_img.setAttribute("width", "20px");
-  profile_img.setAttribute("height", "20px");
-  profile_img.classList.add("rounded-circle");
+  // Set block top
+  {
+    profile_img.setAttribute("src", user.profile_photo);
+    profile_img.setAttribute("width", "30px");
+    profile_img.setAttribute("height", "30px");
+    profile_img.classList.add("rounded-circle");
 
-  author.innerHTML = image.username;
-  del_btn.addEventListener("click", async () => {
+    author.innerHTML = image.username;
+    author.style.fontWeight = "bold";
+    bio.innerHTML = user.biography;
+    bio.style.fontSize = "xx-small";
+    authorCol.appendChild(author);
+    authorCol.appendChild(bio);
+
+    del_btn.addEventListener("click", async () => {
+      try {
+        const resRaw = await fetch("/delete-image", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url: image.url }),
+        });
+        if (!resRaw.ok) {
+          const res = await resRaw.text();
+          alert(res);
+        } else {
+          document.querySelector("#timeline").removeChild(block);
+        }
+      } catch (e) {
+        console.log("Err ", e);
+      }
+    });
+
+    del_btn.appendChild(del_icon);
+    block_top.appendChild(profile_img);
+    block_top.appendChild(authorCol);
+    block_top.appendChild(del_btn);
+  }
+
+  // Set image
+  img.setAttribute("src", image.url);
+  img.setAttribute("alt", "user_photo");
+
+  // Set comments
+  {
+    comment_inputbox.setAttribute("placeholder", "Add a comment...");
+    comment_inputbox.setAttribute("type", "text");
+    comment_inputbox.setAttribute("name", "comment");
+
+    post_btn.innerText = "post";
+    post_btn.setAttribute("type", "submit");
+
     try {
-      const resRaw = await fetch("/delete-image", {
-        method: "DELETE",
+      const c0 = image.comments[0];
+      const c1 = image.comments[1];
+      comment0.innerText = Object.keys(c0)[0] + ": " + Object.values(c0)[0];
+      comment1.innerText = Object.keys(c1)[0] + ": " + Object.values(c1)[0];
+    } catch (err) {
+      console.log("Comments not found", err);
+    }
+    comments.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const c = comment_inputbox.value;
+      if (c === "") {
+        alert("Comment cannot be empty");
+        return;
+      }
+      comments.reset();
+      const new_comment = document.createElement("div");
+      // const profile_photo_url = getUser(document.cookie.username).profile_photo;
+      // new_comment.innerHTML = document.cookie.username + ": " + c;
+      new_comment.innerHTML = c;
+      new_comment.classList.add("align-self", "m-2");
+      comments.insertBefore(new_comment, comments[0]);
+
+      //TODO
+      const resRaw = await fetch("/add-comment", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url: image.url }),
+        body: JSON.stringify({ comment: c, image_name: image.image_name }),
       });
       if (!resRaw.ok) {
         const res = await resRaw.text();
         alert(res);
-      } else {
-        document.querySelector("#timeline").removeChild(block);
       }
-    } catch (e) {
-      console.log("Err ", e);
-    }
-  });
-  del_btn.appendChild(del_icon);
-  block_top.appendChild(profile_img);
-  block_top.appendChild(author);
-  block_top.appendChild(del_btn);
-
-  img.setAttribute("src", image.url);
-  img.setAttribute("alt", "user_photo");
-
-  comment_inputbox.setAttribute("placeholder", "Add a comment...");
-  comment_inputbox.setAttribute("type", "text");
-  comment_inputbox.setAttribute("name", "comment");
-
-  post_btn.innerText = "post";
-  post_btn.setAttribute("type", "submit");
-
-  try {
-    const c0 = image.comments[0];
-    const c1 = image.comments[1];
-    comment0.innerText = Object.keys(c0)[0] + ": " + Object.values(c0)[0];
-    comment1.innerText = Object.keys(c1)[0] + ": " + Object.values(c1)[0];
-  } catch (err) {}
-  comments.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const c = comment_inputbox.value;
-    if (c === "") {
-      alert("Comment cannot be empty");
-      return;
-    }
-    comments.reset();
-    const new_comment = document.createElement("div");
-    // const profile_photo_url = getUser(document.cookie.username).profile_photo;
-    // new_comment.innerHTML = document.cookie.username + ": " + c;
-    new_comment.innerHTML = c;
-    new_comment.classList.add("align-self", "m-2");
-    comments.insertBefore(new_comment, comments[0]);
-
-    //TODO
-    const resRaw = await fetch("/add-comment", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ comment: c, image_name: image.image_name }),
     });
-    if (!resRaw.ok) {
-      const res = await resRaw.text();
-      alert(res);
-    }
-  });
 
-  comments.appendChild(comment0);
-  comments.appendChild(comment1);
-  comments.appendChild(comment_inputbox);
-  comments.appendChild(post_btn);
+    comments.appendChild(comment0);
+    comments.appendChild(comment1);
+    comments.appendChild(comment_inputbox);
+    comments.appendChild(post_btn);
+  }
 
   block.appendChild(block_top);
   block.appendChild(img);
   block.appendChild(comments);
 
+  // Set classes
   profile_img.classList.add("d-inline-block", "align-self-center", "m-2");
-  author.classList.add("d-inline-block", "align-self-center", "m-2", "me-auto");
-  del_btn.classList.add("d-inline-block", "align-self-center", "m-2");
-  del_icon.classList.add("fas", "fa-times", "fas-2x");
+  author.classList.add("align-self-center", "my-1");
+  bio.classList.add("align-self-center", "my-1");
+  authorCol.classList.add("d-inline-block", "m-2", "me-auto");
+  del_btn.classList.add("d-inline-block", "align-self-center", "m-3");
+  del_icon.classList.add("fas", "fa-times", "del-icon");
+
   block_top.classList.add("d-flex");
   img.classList.add("img-fluid");
   comment0.classList.add("align-self-center", "m-2");
   comment1.classList.add("align-self-center", "m-2");
-  block.classList.add(
-    "block",
-    "m-3",
-    "border",
-    "border-1",
-    "border-secondary",
-    "bg-light"
-  );
+  comments.classList.add("m-3");
+  block.classList.add("block", "m-3", "bg-white", "border", "fade-in");
   return block;
 }
 // end of render block
 
 // render the timeline on query results
-// generate 3 blocks once
+// generate 2 blocks once
 let block_counter = 0;
 let flag;
 const timeline = document.querySelector("#timeline");
 async function renderTimeline(entries, observer) {
   flag = true;
-  for (let i = 0; i < 1; i++) {
+  const fadeObserver = new IntersectionObserver(fadeIn, { threshold: 0.1 });
+  for (let i = 0; i < 2; i++) {
     if (block_counter === images.length) {
       const prompt = document.createElement("div");
-      const endline = document.createElement("hr");
+      const endLine = document.createElement("hr");
 
       prompt.innerHTML = "You have reached the Mariana Trench";
       prompt.classList.add("mt-5", "mb-2", "text-center");
-      endline.classList.add("mb-5");
+      endLine.classList.add("mb-5");
       timeline.appendChild(prompt);
-      timeline.appendChild(endline);
+      timeline.appendChild(endLine);
 
       observer.disconnect();
       break;
     }
     if (entries.length !== 0 && entries[0].isIntersecting) {
-      const new_block = await renderBlock(images[block_counter]);
-      await timeline.appendChild(new_block);
+      const image = images[block_counter];
+      const new_block = await renderBlock(image);
+      timeline.appendChild(new_block);
+      fadeObserver.observe(new_block);
       if (flag) {
         observer.disconnect();
         observer.observe(new_block);
@@ -166,142 +205,35 @@ async function renderTimeline(entries, observer) {
 }
 
 // fetch images
-let images;
-async function fetchImages() {
-  const resRaw = await fetch("/images");
+async function getImages() {
+  let images;
+  const resRaw = await fetch("/get-images", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({}),
+  });
   if (!resRaw.ok) {
     const res = await resRaw.text();
     alert(res);
   } else {
     images = await resRaw.json();
-    let observer = new IntersectionObserver(renderTimeline);
-    observer.observe(timeline);
   }
-}
-
-// Log in
-// User
-// - username
-// - password
-// - description
-// - profile_photo
-async function login() {
-  const user = await getUser(getCookie("username"));
-  if (user !== undefined) {
-    const name = document.querySelector("#username");
-    const des = document.querySelector("#bio");
-    const img = document.querySelector("#profile_photo");
-    const imgL = document.querySelector("#profile_photo_large");
-    img.setAttribute("src", user.profile_photo);
-    imgL.setAttribute("src", user.profile_photo);
-    name.innerHTML = user.username;
-    des.innerHTML = user.biography;
-    document.querySelector("#logout_link").classList.remove("d-none");
-    document.querySelector("#login_link").classList.add("d-none");
-    document.querySelectorAll(".a_log").forEach((value) => {
-      value.setAttribute("href", "home.html");
-    });
-  }
-  await fetchImages();
+  return images;
 }
 
 // Log out
-document.querySelector("#logout_link").addEventListener("click", () => {
-  document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  document.querySelector("#logout_link").classList.add("d-none");
-  document.querySelector("#login_link").classList.remove("d-none");
-  document.querySelectorAll(".a_log").forEach((value) => {
-    value.setAttribute("href", "login.html");
-  });
-});
+document.querySelector("#logout_link").addEventListener("click", utils.logout);
 
-// Call upload window
-const shade = document.querySelector("#shade");
+// Set upload window
 const upload_button = document.querySelector("#upload_button");
-const upload_window = document.querySelector("#upload_window");
+upload_button.addEventListener("click", utils.callUploadWindow, { once: true });
 
-function callUploadWindow() {
-  upload_window.classList.remove("d-none");
-  shade.classList.remove("d-none");
-  shade.addEventListener("click", hideUploadWindow, { once: true });
-}
-
-function hideUploadWindow() {
-  upload_window.classList.add("d-none");
-  shade.classList.add("d-none");
-  upload_button.addEventListener("click", callUploadWindow, { once: true });
-}
-
-upload_button.addEventListener("click", callUploadWindow, { once: true });
-
-// Thumbnail
-const upload_image_form = document.querySelector("#upload_image_form");
-const upload_image = document.querySelector("#upload_image");
+// Preview
 const upload = document.querySelector("#upload");
-upload.addEventListener("change", () => {
-  const oFReader = new FileReader();
-  oFReader.readAsDataURL(upload.files[0]);
-  oFReader.onload = function (oFREvent) {
-    upload_image.src = oFREvent.target.result;
-  };
-  upload_image.classList.remove("d-none");
-});
+upload.addEventListener("change", utils.preview);
 
 // Upload an image
-upload_image_form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  try {
-    const formData = new FormData(upload_image_form);
-    const resRaw = await fetch("/upload-image", {
-      method: "POST",
-      body: formData,
-    });
-    if (!resRaw.ok) {
-      const res = await resRaw.text();
-      alert(res);
-    }
-    location.reload();
-  } catch (err) {
-    console.log("Err", err);
-  }
-});
-
-let users;
-async function getUser(username) {
-  if (users === undefined) {
-    try {
-      const usersRaw = await fetch("/get-all-users");
-      if (!usersRaw.ok) {
-        const res = await usersRaw.text();
-        alert(res);
-      } else {
-        users = await usersRaw.json();
-        users = await Object.values(users);
-      }
-    } catch (err) {
-      console.log("Err", err);
-    }
-  }
-  for (let user of users) {
-    if (user.username === username) {
-      return user;
-    }
-  }
-  return undefined;
-}
-
-function getCookie(cname) {
-  const name = cname + "=";
-  const decodedCookie = decodeURIComponent(document.cookie);
-  const ca = decodedCookie.split(";");
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) === " ") {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) === 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return undefined;
-}
+const upload_image_form = document.querySelector("#upload_image_form");
+upload_image_form.addEventListener("submit", utils.uploadImage);

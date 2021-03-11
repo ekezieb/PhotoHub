@@ -69,13 +69,13 @@
   <link rel="stylesheet" href="stylesheets/style.css" />
   
   <!--JS files-->
-  <script type="module" src="javascripts/init.js"></script>
+  <script type="module" src="javascripts/utils.js"></script>
   <script type="module" src="javascripts/main.js"></script>
 </head>
 
 <body class="position-relative">
   <!--NAV-->
-  <nav class="navbar position-sticky navbar-light bg-light" style="z-index: 3">
+  <nav class="navbar position-sticky" style="z-index: 3">
     <div class="container px-lg-5">
       <div class="row" style="width: 100%">
         <a class="col-lg-3 col-sm-6 navbar-brand" href="/">
@@ -89,7 +89,7 @@
             <svg class="fas fa-plus fa-2x"></svg>
           </div>
           <div class="col nav-item align-self-center text-center">
-            <svg class="fas fa-heart fa-2x"></svg>
+            <svg class="far fa-heart fa-2x"></svg>
           </div>
           <a class="col a_log align-self-center text-center" href="login.html">
             <img src="images/profile-photo/default.jpg" alt="profile_photo" id="profile_photo"
@@ -102,12 +102,12 @@
   
   <!--UPLOAD-->
   <div id="shade" class="d-none"
-       style="width: 100vw; height: 100vh; z-index: 2; position: fixed; top: 0; background-color: aliceblue; opacity:
-       40%"></div>
-  <aside class="position-fixed start-50 translate-middle-x mt-3 d-none" style="z-index: 1200; min-width: 450px"
+       style="width: 100vw; height: 100vh; z-index: 2; position: fixed; top: 0"></div>
+  <aside class="position-fixed start-50 translate-middle-x mt-3 rounded d-none" style="z-index: 1200; min-width: 450px"
          id="upload_window">
-    <div class="bg-light border border-dark rounded py-2">
-      <form class="mx-auto py-2" id="upload_image_form" style="z-index: 3">
+    <div class="form-background"></div>
+    <div class="rounded py-2">
+      <form class="mx-auto py-2" id="upload_image_form" style="z-index: 4">
         <h4 class="pb-1 text-center">Upload Image</h4>
         <input type="file" class="form-control my-2" name="image" id="upload" style="width: 90%; margin-left: 5%">
         <img class="img-thumbnail my-2 d-none" alt="thumbnail_image" src=""
@@ -142,10 +142,11 @@
           </div>
           <div class="container my-4">
             <div class="row row-cols-4">
-              <a href="https://www.facebook.com/" class="text-center"><svg class="fab fa-facebook-f fa-2x"></svg></a>
-              <a href="https://twitter.com/" class="text-center"><svg class="fab fa-twitter fa-2x"></svg></a>
-              <a href="https://github.com/" class="text-center"><svg class="fab fa-github fa-2x"></svg></a>
-              <a href="https://www.instagram.com/" class="text-center"><svg class="fab fa-instagram fa-2x"></svg></a>
+              <a href="https://www.facebook.com/"
+                 class="text-center social-icon"><svg class="fab fa-facebook-f fa-2x"></svg></a>
+              <a href="https://twitter.com/" class="text-center social-icon"><svg class="fab fa-twitter fa-2x"></svg></a>
+              <a href="https://github.com/" class="text-center social-icon"><svg class="fab fa-github fa-2x"></svg></a>
+              <a href="https://www.instagram.com/" class="text-center social-icon"><svg class="fab fa-instagram fa-2x"></svg></a>
             </div>
           </div>
           <div class="text-center my-4">All rights reserved</div>

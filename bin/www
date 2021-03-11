@@ -89,3 +89,17 @@ function onListening() {
     : "port " + addr.port;
   debug("Listening on " + bind);
 }
+
+process.on("SIGTERM", () => {
+  console.info("SIGTERM signal received.");
+  console.log("Closing http server.");
+  server.close(async () => {
+    console.log("Http server closed.");
+    // boolean means [force], see in mongoose doc
+    const client = require("../db/getClient").getClient();
+    await client.close(() => {
+      console.log("MongoDb connection closed.");
+      process.exit(0);
+    });
+  });
+});

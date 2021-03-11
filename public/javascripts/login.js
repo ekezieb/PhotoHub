@@ -5,14 +5,14 @@ document.querySelector("#login").addEventListener("click", showLogin);
 
 function showLogin() {
   signup_form.classList.remove("d-block");
-  signup_form.classList.add("d-none");
   login_form.classList.remove("d-none");
+  signup_form.classList.add("d-none");
   login_form.classList.add("d-block");
 }
 document.querySelector("#signup").addEventListener("click", () => {
   login_form.classList.remove("d-block");
-  login_form.classList.add("d-none");
   signup_form.classList.remove("d-none");
+  login_form.classList.add("d-none");
   signup_form.classList.add("d-block");
 });
 

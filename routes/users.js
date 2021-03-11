@@ -7,8 +7,7 @@ const findDocuments = require("../db/findDocuments");
 const insertDocuments = require("../db/insertDocument");
 const updateDocuments = require("../db/updateDocuments");
 
-const getClient = require("../db/getClient");
-let client;
+const client = require("../db/getClient").getClient();
 
 const imageType = require("image-type");
 
@@ -17,7 +16,6 @@ router.post("/signup", async (req, res) => {
     return res.status(400).send("Username or password cannot be empty.");
   }
   try {
-    client = await getClient();
     console.log("Signing up");
     const data = {
       username: req.body.username,
@@ -37,18 +35,14 @@ router.post("/signup", async (req, res) => {
   } catch (err) {
     console.log("Error", err);
     res.status(400).send(err.name + ": " + err.message);
-  } finally {
-    client.close();
-    console.log("Connection closed");
   }
 });
 
 router.post("/login", async (req, res) => {
-  if (req.cookies.username !== undefined) {
+  if (req.session.username !== undefined) {
     return res.status(400).send("Already logged in.");
   }
   try {
-    client = await getClient();
     console.log("Logging in");
     const query = {
       username: req.body.username,
@@ -59,49 +53,85 @@ router.post("/login", async (req, res) => {
     if (result.length === 0) {
       res.status(404).send("Please provide a valid username and password.");
     } else {
+      const user = result[0];
+      req.session.username = user.username;
+      req.session.profile_photo = user.profile_photo;
+      req.session.biography = user.biography;
+      // for debug
       res.cookie("username", result[0].username, {
-        maxAge: 86400000, // 1 day
-      });
+        maxAge: 86400000,
+      }); // 1 day
       res.sendStatus(200);
     }
   } catch (err) {
     console.log("Error", err);
     res.status(400).send(err.name + ": " + err.message);
-  } finally {
-    client.close();
-    console.log("Connection closed");
   }
 });
 
 router.get("/get-user", async (req, res) => {
-  if (req.cookies.username === undefined) {
-    return res.status(401).send("Please log in first.");
-  }
-  try {
-    client = await getClient();
-    const query = { username: req.cookies.username };
-    const users = await findDocuments(client, "Users", query);
-    if (users.length === 0) {
-      res.status(404).send("User not found");
-    } else {
-      const user = users[0];
-      delete user.password;
-      delete user._id;
-      res.send(user);
+  // for debug
+  if (req.session.username === undefined) {
+    if (req.cookies.username === undefined) {
+      return res.status(401).send("Please log in first.");
     }
-  } catch (err) {
-    console.log("Error", err);
-    res.status(400).send(err.name + ": " + err.message);
-  } finally {
-    client.close();
-    console.log("Connection closed");
+    try {
+      const result = await findDocuments(client, "Users", {
+        username: req.cookies.username,
+      });
+      if (result.length === 0) {
+        res.sendStatus(404);
+      } else {
+        const user = result[0];
+        req.session.username = user.username;
+        req.session.profile_photo = user.profile_photo;
+        req.session.biography = user.biography;
+        const data = {
+          username: req.session.username,
+          profile_photo: req.session.profile_photo,
+          biography: req.session.biography,
+        };
+        res.send(data);
+      }
+    } catch (err) {
+      console.log("Error", err);
+      res.status(400).send(err.name + ": " + err.message);
+    }
+  } else {
+    const data = {
+      username: req.session.username,
+      profile_photo: req.session.profile_photo,
+      biography: req.session.biography,
+    };
+    res.send(data);
   }
+
+  //// session only
+  // if (req.session.username === undefined) {
+  //   return res.status(401).send("Please log in first.");
+  // }
+  // const user = {
+  //   username: req.session.username,
+  //   profile_photo: req.session.profile_photo,
+  //   biography: req.session.biography,
+  // };
+  // res.send(user);
+});
+
+router.get("/logout", async (req, res) => {
+  req.session.destroy((err) => {
+    console.log("Error", err);
+  });
+  res.sendStatus(200);
 });
 
 router.get("/get-all-users", async (req, res) => {
   try {
-    client = await getClient();
+    const { performance } = require("perf_hooks");
+    const t1 = performance.now();
     const users = await findDocuments(client, "Users", {});
+    const t2 = performance.now();
+    console.log("findDocuments", t2 - t1);
     if (users.length === 0) {
       res.status(404).send("User not found");
     } else {
@@ -114,41 +144,35 @@ router.get("/get-all-users", async (req, res) => {
   } catch (err) {
     console.log("Error", err);
     res.status(400).send(err.name + ": " + err.message);
-  } finally {
-    client.close();
-    console.log("Connection closed");
   }
 });
 
 router.put("/update-bio", async (req, res) => {
-  if (req.cookies.username === undefined) {
+  if (req.session.username === undefined) {
     return res.status(401).send("Please log in first.");
   }
   try {
-    client = await getClient();
     console.log("Updating biography");
     await updateDocuments(
       client,
       "Users",
-      { username: req.cookies.username },
+      { username: req.session.username },
       { $set: { biography: req.body.biography } }
     );
+    req.session.biography = req.body.biography;
     res.sendStatus(200);
   } catch (err) {
     console.log("Error", err);
     res.status(400).send(err.name + ": " + err.message);
-  } finally {
-    client.close();
-    console.log("Connection closed");
   }
 });
 
 router.put("/update-profile-photo", async (req, res) => {
-  if (req.cookies.username === undefined) {
+  if (req.session.username === undefined) {
     return res.status(401).send("Please log in first.");
   }
   let file, filename, filepath;
-  let username = req.cookies.username;
+  let username = req.session.username;
   if (!req.files.profile_photo) {
     return res.status(400).send("No files were uploaded.");
   }
@@ -160,7 +184,6 @@ router.put("/update-profile-photo", async (req, res) => {
       .send("Unsupported Media Type.\nPlease upload an image.");
   }
   try {
-    client = await getClient();
     console.log("Updating profile photo of", username);
     filename = username + "." + image_type.ext;
     filepath = __dirname + "/../public/images/profile-photo/" + filename;
@@ -183,6 +206,7 @@ router.put("/update-profile-photo", async (req, res) => {
       { username: username },
       { $set: data }
     );
+    req.session.profile_photo = data.profile_photo;
     // move
     file = await sharp(file.data);
     file = await file.resize(200, 200);
@@ -193,9 +217,6 @@ router.put("/update-profile-photo", async (req, res) => {
   } catch (e) {
     console.log("Error", e);
     res.status(400).send({ err: e });
-  } finally {
-    client.close();
-    console.log("Connection closed");
   }
 });
 module.exports = router;

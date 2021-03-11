@@ -1,3 +1,21 @@
+import * as utils from "./utils.js";
+import { fadeIn } from "./utils.js";
+
+// On load
+// 1. log in
+// 2. fetch information of images
+// 3. generate image gallery
+let images;
+utils.login().then(() => {
+  getMyImages()
+    .then((res) => {
+      images = res;
+    })
+    .then(() => {
+      renderGallery().catch(console.log);
+    });
+});
+
 // Update profile photo
 const update_profile_photo = document.querySelector("#update_profile_photo");
 update_profile_photo.addEventListener("submit", async (event) => {
@@ -43,62 +61,95 @@ update_bio_form.addEventListener("submit", async (event) => {
   }
 });
 
-window.addEventListener("load", login);
-async function login() {
-  const user = await getUser(getCookie("username"));
-  if (user !== undefined) {
-    const name = document.querySelector("#username");
-    const des = document.querySelector("#bio");
-    const img = document.querySelector("#profile_photo");
-    const imgL = document.querySelector("#profile_photo_large");
-    img.setAttribute("src", user.profile_photo);
-    imgL.setAttribute("src", user.profile_photo);
-    name.innerHTML = user.username;
-    des.innerHTML = user.biography;
-    document.querySelector("#logout_link").classList.remove("d-none");
-    document.querySelector("#login_link").classList.add("d-none");
-    document.querySelectorAll(".a_log").forEach((value) => {
-      value.setAttribute("href", "home.html");
-    });
+// fetch the images for the homepage
+async function getMyImages() {
+  let images;
+  const resRaw = await fetch("/get-my-images");
+  if (!resRaw.ok) {
+    const res = await resRaw.text();
+    alert(res);
+  } else {
+    images = await resRaw.json();
+  }
+  return images;
+}
+
+// render a block of the gallery
+async function renderBlock(image) {
+  const img = document.createElement("div");
+  const block = document.createElement("div");
+
+  // A tricky way to make a square photo
+  img.style.backgroundImage = `url(${image.url})`;
+  img.style.paddingTop = "100%";
+  img.style.backgroundSize = "cover";
+  block.style.padding = "3%";
+
+  block.appendChild(img);
+  block.classList.add("col-lg-4", "fade-in");
+
+  return block;
+}
+
+// render image gallery
+async function renderGallery() {
+  const gallery = document.querySelector("#gallery");
+  const observer = new IntersectionObserver(fadeIn);
+  for (let image of images) {
+    const new_block = await renderBlock(image);
+    gallery.appendChild(new_block);
+    observer.observe(new_block);
   }
 }
 
-let users;
-async function getUser(username) {
-  if (users === undefined) {
-    try {
-      const usersRaw = await fetch("/get-all-users");
-      if (!usersRaw.ok) {
-        const res = await usersRaw.text();
-        alert(res);
-      } else {
-        users = await usersRaw.json();
-        users = await Object.values(users);
-      }
-    } catch (err) {
-      console.log("Err", err);
-    }
-  }
-  for (let user of users) {
-    if (user.username === username) {
-      return user;
-    }
-  }
-  return undefined;
+function callUpdateProfileWindow() {
+  const shade = document.querySelector("#shade");
+  const update_profile_window = document.querySelector(
+    "#update_profile_window"
+  );
+  update_profile_window.classList.remove("d-none");
+  shade.classList.remove("d-none");
+  update_profile_window.classList.add("d-block");
+  shade.classList.add("d-block");
+  shade.addEventListener("click", hideUpdateProfileWindow, { once: true });
 }
 
-function getCookie(cname) {
-  const name = cname + "=";
-  const decodedCookie = decodeURIComponent(document.cookie);
-  const ca = decodedCookie.split(";");
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) === " ") {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) === 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return undefined;
+function hideUpdateProfileWindow() {
+  const update_profile_button = document.querySelector("#profile_photo_large");
+  const update_profile_window = document.querySelector(
+    "#update_profile_window"
+  );
+  const shade = document.querySelector("#shade");
+  update_profile_window.classList.remove("d-block");
+  shade.classList.remove("d-block");
+  update_profile_window.classList.add("d-none");
+  shade.classList.add("d-none");
+  update_profile_button.addEventListener("click", callUpdateProfileWindow, {
+    once: true,
+  });
 }
+
+// Log out
+document.querySelector("#logout_link").addEventListener("click", () => {
+  utils.logout().then(() => {
+    location.replace("/");
+  });
+});
+
+// Set update profile window
+const update_profile_button = document.querySelector("#profile_photo_large");
+update_profile_button.addEventListener("click", callUpdateProfileWindow, {
+  once: true,
+});
+
+// Set upload window
+const upload_button = document.querySelector("#upload_button");
+upload_button.addEventListener("click", utils.callUploadWindow, { once: true });
+
+// Preview
+const upload = document.querySelector("#upload");
+upload.addEventListener("change", utils.preview);
+
+// Upload an image
+const upload_image_form = document.querySelector("#upload_image_form");
+upload_image_form.addEventListener("submit", utils.uploadImage);

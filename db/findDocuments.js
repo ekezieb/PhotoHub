@@ -3,9 +3,7 @@ async function findDocuments(client, collection, query = {}) {
     const _db = client.db("PhotoHub");
     const _collection = _db.collection(collection);
     console.log("Collection ready, querying ", query);
-    const res = await _collection.find(query).sort({ _id: -1 }).toArray();
-    console.log("Find ", res);
-    return res;
+    return await _collection.find(query).sort({ _id: -1 }).toArray();
   } catch (e) {
     console.log("Error ", e);
     throw e;
