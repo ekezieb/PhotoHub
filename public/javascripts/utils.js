@@ -70,6 +70,8 @@ function callUploadWindow() {
   const upload_window = document.querySelector("#upload_window");
   upload_window.classList.remove("d-none");
   shade.classList.remove("d-none");
+  upload_window.classList.add("d-block");
+  shade.classList.add("d-block");
   shade.addEventListener("click", hideUploadWindow, { once: true });
 }
 
@@ -77,6 +79,8 @@ function hideUploadWindow() {
   const upload_button = document.querySelector("#upload_button");
   const upload_window = document.querySelector("#upload_window");
   const shade = document.querySelector("#shade");
+  upload_window.classList.remove("d-block");
+  shade.classList.remove("d-block");
   upload_window.classList.add("d-none");
   shade.classList.add("d-none");
   upload_button.addEventListener("click", callUploadWindow, { once: true });
@@ -92,6 +96,7 @@ function preview() {
       upload_image.src = oFREvent.target.result;
     };
     upload_image.classList.remove("d-none");
+    upload_image.classList.add("d-block");
   }
 }
 
@@ -114,6 +119,15 @@ async function uploadImage(event) {
   }
 }
 
+function fadeIn(entries, observer) {
+  entries.forEach((entry) => {
+    if (entry && entry.isIntersecting) {
+      entry.target.classList.add("active");
+      observer.unobserve(entry.target);
+    }
+  });
+}
+
 export {
   getAllUsers,
   getUser,
@@ -122,4 +136,5 @@ export {
   callUploadWindow,
   preview,
   uploadImage,
+  fadeIn,
 };

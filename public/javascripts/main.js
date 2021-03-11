@@ -1,4 +1,5 @@
 import * as utils from "./utils.js";
+import { fadeIn } from "./utils.js";
 
 // On load
 // 1. log in
@@ -153,20 +154,15 @@ async function renderBlock(image) {
   author.classList.add("align-self-center", "my-1");
   bio.classList.add("align-self-center", "my-1");
   authorCol.classList.add("d-inline-block", "m-2", "me-auto");
-  del_btn.classList.add("d-inline-block", "align-self-center", "m-2");
-  del_icon.classList.add("fas", "fa-times", "fas-2x");
+  del_btn.classList.add("d-inline-block", "align-self-center", "m-3");
+  del_icon.classList.add("fas", "fa-times", "del-icon");
+
   block_top.classList.add("d-flex");
   img.classList.add("img-fluid");
   comment0.classList.add("align-self-center", "m-2");
   comment1.classList.add("align-self-center", "m-2");
-  block.classList.add(
-    "block",
-    "m-3",
-    "border",
-    "border-1",
-    "border-secondary",
-    "bg-light"
-  );
+  comments.classList.add("m-3");
+  block.classList.add("block", "m-3", "bg-white", "border", "fade-in");
   return block;
 }
 // end of render block
@@ -178,6 +174,7 @@ let flag;
 const timeline = document.querySelector("#timeline");
 async function renderTimeline(entries, observer) {
   flag = true;
+  const fadeObserver = new IntersectionObserver(fadeIn, { threshold: 0.1 });
   for (let i = 0; i < 2; i++) {
     if (block_counter === images.length) {
       const prompt = document.createElement("div");
@@ -195,7 +192,8 @@ async function renderTimeline(entries, observer) {
     if (entries.length !== 0 && entries[0].isIntersecting) {
       const image = images[block_counter];
       const new_block = await renderBlock(image);
-      await timeline.appendChild(new_block);
+      timeline.appendChild(new_block);
+      fadeObserver.observe(new_block);
       if (flag) {
         observer.disconnect();
         observer.observe(new_block);

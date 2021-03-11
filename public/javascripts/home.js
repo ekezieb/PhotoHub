@@ -1,4 +1,5 @@
 import * as utils from "./utils.js";
+import { fadeIn } from "./utils.js";
 
 // On load
 // 1. log in
@@ -85,8 +86,7 @@ async function renderBlock(image) {
   block.style.padding = "3%";
 
   block.appendChild(img);
-
-  block.classList.add("col-lg-4");
+  block.classList.add("col-lg-4", "fade-in");
 
   return block;
 }
@@ -94,9 +94,11 @@ async function renderBlock(image) {
 // render image gallery
 async function renderGallery() {
   const gallery = document.querySelector("#gallery");
+  const observer = new IntersectionObserver(fadeIn);
   for (let image of images) {
     const new_block = await renderBlock(image);
-    await gallery.appendChild(new_block);
+    gallery.appendChild(new_block);
+    observer.observe(new_block);
   }
 }
 
@@ -107,6 +109,8 @@ function callUpdateProfileWindow() {
   );
   update_profile_window.classList.remove("d-none");
   shade.classList.remove("d-none");
+  update_profile_window.classList.add("d-block");
+  shade.classList.add("d-block");
   shade.addEventListener("click", hideUpdateProfileWindow, { once: true });
 }
 
@@ -116,6 +120,8 @@ function hideUpdateProfileWindow() {
     "#update_profile_window"
   );
   const shade = document.querySelector("#shade");
+  update_profile_window.classList.remove("d-block");
+  shade.classList.remove("d-block");
   update_profile_window.classList.add("d-none");
   shade.classList.add("d-none");
   update_profile_button.addEventListener("click", callUpdateProfileWindow, {
