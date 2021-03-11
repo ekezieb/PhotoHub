@@ -103,18 +103,10 @@ router.post("/add-comment", async (req, res) => {
     });
 
     const usr = req.session.username;
-    console.log(image_document[0].comments);
-
     await updateDocuments(client, "Images", image_document[0], {
       $push: { comments: { [usr]: comment_body } },
     });
 
-    // await updateDocuments(client, "Images", image_document[0], {
-    //   $set: {
-    //     "comments.username": req.session.username,
-    //     "comments.commentText": comment_body,
-    //   },
-    // });
     res.sendStatus(200);
   } catch (err) {
     console.log("Error ", err);
@@ -124,9 +116,14 @@ router.post("/add-comment", async (req, res) => {
 
 router.get("/view-comment", async (req, res) => {
   try {
-    const comment = await findDocuments(client, "Images", {});
+    const image_document = await findDocuments(client, "Images", {
+      image_name: req.body.image_name,
+    });
 
-    res.send(comment);
+    console.log("Loading comments");
+    console.log(image_document.comments);
+
+    res.send(image_document.comments);
   } catch (err) {
     console.log("Error ", err);
     res.status(400).send(err.name + ": " + err.message);

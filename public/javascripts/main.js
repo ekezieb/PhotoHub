@@ -45,7 +45,6 @@ async function renderBlock(image) {
   const comment_inputbox = document.createElement("input");
   const post_btn = document.createElement("button");
   const comment0 = document.createElement("div");
-  const comment1 = document.createElement("div");
   const block = document.createElement("div");
   const user = await utils.getUser(users, image.username);
 
@@ -95,6 +94,10 @@ async function renderBlock(image) {
 
   // Set comments
   {
+    comments.setAttribute("id", "comments-form");
+    comments.setAttribute("action", "/add-comment");
+    comments.setAttribute("method", "POST");
+
     comment_inputbox.setAttribute("placeholder", "Add a comment...");
     comment_inputbox.setAttribute("type", "text");
     comment_inputbox.setAttribute("name", "comment");
@@ -102,14 +105,21 @@ async function renderBlock(image) {
     post_btn.innerText = "post";
     post_btn.setAttribute("type", "submit");
 
+    comment0.setAttribute("id", "show_comments");
+
+    //comment0.innerHTML = images.comments[0][0] + ": " + images.comments[0][1];
+    image.comments.forEach(function (comment) {
+      console.log(comment);
+    });
+
+    /*
     try {
       const c0 = image.comments[0];
-      const c1 = image.comments[1];
-      comment0.innerText = Object.keys(c0)[0] + ": " + Object.values(c0)[0];
-      comment1.innerText = Object.keys(c1)[0] + ": " + Object.values(c1)[0];
+      comment0.innerHTML = Object.keys(c0)[0] + ": " + Object.values(c0)[0];
     } catch (err) {
       console.log("Comments not found", err);
     }
+    
     comments.addEventListener("submit", async (event) => {
       event.preventDefault();
       const c = comment_inputbox.value;
@@ -124,23 +134,10 @@ async function renderBlock(image) {
       new_comment.innerHTML = c;
       new_comment.classList.add("align-self", "m-2");
       comments.insertBefore(new_comment, comments[0]);
-
-      //TODO
-      const resRaw = await fetch("/add-comment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ comment: c, image_name: image.image_name }),
       });
-      if (!resRaw.ok) {
-        const res = await resRaw.text();
-        alert(res);
-      }
-    });
+    */
 
     comments.appendChild(comment0);
-    comments.appendChild(comment1);
     comments.appendChild(comment_inputbox);
     comments.appendChild(post_btn);
   }
@@ -160,7 +157,6 @@ async function renderBlock(image) {
   block_top.classList.add("d-flex");
   img.classList.add("img-fluid");
   comment0.classList.add("align-self-center", "m-2");
-  comment1.classList.add("align-self-center", "m-2");
   comments.classList.add("m-3");
   block.classList.add("block", "m-3", "bg-white", "border", "fade-in");
   return block;
@@ -221,6 +217,26 @@ async function getImages() {
     images = await resRaw.json();
   }
   return images;
+}
+
+// fetch comments
+async function viewComment() {
+  let comments;
+  const resRaw = await fetch("/view-comment", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({}),
+  });
+
+  if (!resRaw.ok) {
+    const res = await resRaw.text();
+    alert(res);
+  } else {
+    images = await resRaw.json();
+  }
+  return comments;
 }
 
 // Log out
