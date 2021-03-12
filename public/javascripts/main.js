@@ -25,6 +25,25 @@ utils.login().then(() => {
     });
 });
 
+/*async function viewComment() {
+  let comments;
+  const resRaw = await fetch("/view-comment", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({}),
+  });
+
+  if (!resRaw.ok) {
+    const res = await resRaw.text();
+    alert(res);
+  }
+  comments = await resRaw.json();
+
+  return comments;
+}*/
+
 // render a block on given image information
 // image
 // - image_name
@@ -44,7 +63,6 @@ async function renderBlock(image) {
   const comments = document.createElement("form");
   const comment_inputbox = document.createElement("input");
   const post_btn = document.createElement("button");
-  const comment0 = document.createElement("div");
   const block = document.createElement("div");
   const user = await utils.getUser(users, image.username);
 
@@ -105,11 +123,25 @@ async function renderBlock(image) {
     post_btn.innerText = "post";
     post_btn.setAttribute("type", "submit");
 
-    comment0.setAttribute("id", "show_comments");
+    let rawcomments;
+    const resRaw = await fetch("/view-comment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}),
+    });
 
-    //comment0.innerHTML = images.comments[0][0] + ": " + images.comments[0][1];
-    image.comments.forEach(function (comment) {
-      console.log(comment);
+    if (!resRaw.ok) {
+      const res = await resRaw.text();
+      alert(res);
+    }
+    rawcomments = await resRaw.json();
+
+    rawcomments.forEach(function (comment) {
+      const newComment = document.createElement("div");
+      newComment.innerHTML = comment[0] + ": " + comment[1];
+      comment.appendChild(newComment);
     });
 
     /*
@@ -137,7 +169,6 @@ async function renderBlock(image) {
       });
     */
 
-    comments.appendChild(comment0);
     comments.appendChild(comment_inputbox);
     comments.appendChild(post_btn);
   }
@@ -156,7 +187,7 @@ async function renderBlock(image) {
 
   block_top.classList.add("d-flex");
   img.classList.add("img-fluid");
-  comment0.classList.add("align-self-center", "m-2");
+  //comment0.classList.add("align-self-center", "m-2");
   comments.classList.add("m-3");
   block.classList.add("block", "m-3", "bg-white", "border", "fade-in");
   return block;
@@ -220,24 +251,6 @@ async function getImages() {
 }
 
 // fetch comments
-async function viewComment() {
-  let comments;
-  const resRaw = await fetch("/view-comment", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({}),
-  });
-
-  if (!resRaw.ok) {
-    const res = await resRaw.text();
-    alert(res);
-  } else {
-    images = await resRaw.json();
-  }
-  return comments;
-}
 
 // Log out
 document.querySelector("#logout_link").addEventListener("click", utils.logout);

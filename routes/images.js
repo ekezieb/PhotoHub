@@ -106,6 +106,7 @@ router.post("/add-comment", async (req, res) => {
     await updateDocuments(client, "Images", image_document[0], {
       $push: { comments: { [usr]: comment_body } },
     });
+    //req.session.msg = "Comment Succesfully posted";
 
     res.sendStatus(200);
   } catch (err) {
@@ -114,6 +115,7 @@ router.post("/add-comment", async (req, res) => {
   }
 });
 
+// comment data endpoint
 router.get("/view-comment", async (req, res) => {
   try {
     const image_document = await findDocuments(client, "Images", {
@@ -123,7 +125,7 @@ router.get("/view-comment", async (req, res) => {
     console.log("Loading comments");
     console.log(image_document.comments);
 
-    res.send(image_document.comments);
+    res.send([image_document.comments]);
   } catch (err) {
     console.log("Error ", err);
     res.status(400).send(err.name + ": " + err.message);
