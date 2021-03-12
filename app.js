@@ -3,7 +3,6 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const fileUpload = require("express-fileupload");
-const bodyParser = require("body-parser");
 const session = require("express-session");
 
 const mongo = require("./db/getClient");
@@ -16,7 +15,6 @@ const app = express();
 
 app.use(logger("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(fileUpload({}));
@@ -32,7 +30,5 @@ app.use(
 
 app.use("/", imagesRouter);
 app.use("/", usersRouter);
-
-app.use(bodyParser.urlencoded({ extended: true }));
 
 module.exports = app;

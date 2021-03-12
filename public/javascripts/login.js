@@ -29,7 +29,6 @@ login_form.addEventListener("submit", async (event) => {
       },
       body: JSON.stringify({ username: username, password: password }),
     });
-    console.log(resRaw);
     login_form.reset();
     if (!resRaw.ok) {
       const res = await resRaw.text();
@@ -56,7 +55,6 @@ signup_form.addEventListener("submit", async (event) => {
       },
       body: JSON.stringify({ username: username, password: password }),
     });
-    console.log(resRaw);
     signup_form.reset();
     if (!resRaw.ok) {
       const res = await resRaw.text();

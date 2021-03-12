@@ -128,6 +128,76 @@ function fadeIn(entries, observer) {
   });
 }
 
+function addDeleteCommentBtn(parent) {
+  const text = document.createElement("div");
+  const del_btn = document.createElement("svg");
+  del_btn.classList.add(
+    "fas",
+    "fa-comment-alt",
+    "position-absolute",
+    "top-0",
+    "start-50",
+    "translate-middle",
+    "d-none"
+  );
+  del_btn.style.fontSize = "1.5rem";
+  del_btn.style.color = "grey";
+  text.innerHTML = "del";
+  text.classList.add(
+    "position-absolute",
+    "top-0",
+    "start-50",
+    "translate-middle",
+    "d-none"
+  );
+  parent.appendChild(del_btn);
+  // parent.appendChild(text);
+
+  parent.addEventListener("click", async () => {
+    parent.childNodes[2].classList.remove("d-none");
+    // parent.childNodes[3].classList.remove("d-none");
+    window.addEventListener("click", async (event) => {
+      const button = parent.lastElementChild.firstElementChild;
+      if (event.target !== button) {
+        button.classList.add("d-none");
+      } else {
+        const resRaw = await fetch("/delete-comment", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: parent.childNodes[0].innerHTML,
+            comment: parent.childNodes[1].innerHTML,
+          }),
+        });
+        if (!resRaw) {
+          const res = await resRaw.text();
+          alert(res);
+        } else {
+          parent.classList.add("d-none");
+        }
+      }
+    });
+  });
+}
+
+function getCookie(cname) {
+  const name = cname + "=";
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const ca = decodedCookie.split(";");
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === " ") {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) === 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return undefined;
+}
+
 export {
   getAllUsers,
   getUser,
@@ -137,4 +207,6 @@ export {
   preview,
   uploadImage,
   fadeIn,
+  addDeleteCommentBtn,
+  getCookie,
 };

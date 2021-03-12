@@ -1,5 +1,5 @@
 import * as utils from "./utils.js";
-import { fadeIn } from "./utils.js";
+import { addDeleteCommentBtn, fadeIn } from "./utils.js";
 
 // On load
 // 1. log in
@@ -25,25 +25,6 @@ utils.login().then(() => {
     });
 });
 
-/*async function viewComment() {
-  let comments;
-  const resRaw = await fetch("/view-comment", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({}),
-  });
-
-  if (!resRaw.ok) {
-    const res = await resRaw.text();
-    alert(res);
-  }
-  comments = await resRaw.json();
-
-  return comments;
-}*/
-
 // render a block on given image information
 // image
 // - image_name
@@ -60,8 +41,9 @@ async function renderBlock(image) {
   const del_icon = document.createElement("svg");
   const block_top = document.createElement("div");
   const img = document.createElement("img");
-  const comments = document.createElement("form");
-  const comment_inputbox = document.createElement("input");
+  const comments = document.createElement("div");
+  const comment_form = document.createElement("form");
+  const comment_input_box = document.createElement("input");
   const post_btn = document.createElement("button");
   const block = document.createElement("div");
   const user = await utils.getUser(users, image.username);
@@ -109,77 +91,99 @@ async function renderBlock(image) {
   // Set image
   img.setAttribute("src", image.url);
   img.setAttribute("alt", "user_photo");
-
   // Set comments
   {
-    comments.setAttribute("id", "comments-form");
-    comments.setAttribute("action", "/add-comment");
-    comments.setAttribute("method", "POST");
-
-    comment_inputbox.setAttribute("placeholder", "Add a comment...");
-    comment_inputbox.setAttribute("type", "text");
-    comment_inputbox.setAttribute("name", "comment");
-
-    post_btn.innerText = "post";
-    post_btn.setAttribute("type", "submit");
-
-    comments.addEventListener("submit", async () => {
-      let rawcomments;
-      const resRaw = await fetch("/view-comment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({}),
-      });
-
-      if (!resRaw.ok) {
-        const res = await resRaw.text();
-        alert(res);
+    // display existing comments
+    if (image.comments !== undefined) {
+      comments.classList.remove("d-none");
+      for (let comment of image.comments) {
+        const new_comment = document.createElement("div");
+        const name = document.createElement("div");
+        // TODO add delete function to the body
+        const body = document.createElement("div");
+        name.innerHTML = comment.username + ":";
+        body.innerHTML = comment.comment_body;
+        new_comment.appendChild(name);
+        new_comment.appendChild(body);
+        name.classList.add("me-2");
+        name.style.fontWeight = "bold";
+        new_comment.classList.add(
+          "d-flex",
+          "m-2",
+          "align-self-center",
+          "position-relative"
+        );
+        if (utils.getCookie("username") === comment.username) {
+          body.style.cursor = "pointer";
+          addDeleteCommentBtn(new_comment);
+        }
+        comments.appendChild(new_comment);
       }
-      rawcomments = await resRaw.json();
-
-      rawcomments.forEach((comment) => {
-        const newComment = document.createElement("div");
-        newComment.innerHTML = comment[0] + ": " + comment[1];
-        comment.appendChild(newComment);
-      });
-    });
-
-    /*
-    try {
-      const c0 = image.comments[0];
-      comment0.innerHTML = Object.keys(c0)[0] + ": " + Object.values(c0)[0];
-    } catch (err) {
-      console.log("Comments not found", err);
+    } else {
+      // hide the comments
+      comments.classList.add("d-none");
     }
-    
-    comments.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const c = comment_inputbox.value;
-      if (c === "") {
-        alert("Comment cannot be empty");
-        return;
-      }
-      comments.reset();
-      const new_comment = document.createElement("div");
-      // const profile_photo_url = getUser(document.cookie.username).profile_photo;
-      // new_comment.innerHTML = document.cookie.username + ": " + c;
-      new_comment.innerHTML = c;
-      new_comment.classList.add("align-self", "m-2");
-      comments.insertBefore(new_comment, comments[0]);
-      });
-    */
 
-    comments.appendChild(comment_inputbox);
-    comments.appendChild(post_btn);
+    // set comment form
+    {
+      // post a new comment
+      comment_form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const comment_body = comment_input_box.value;
+        if (comment_body === "") {
+          alert("Comment cannot be empty");
+          return;
+        }
+        comment_form.reset();
+        const resRaw = await fetch("/add-comment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            comment: comment_body,
+            image_name: image.image_name,
+          }),
+        });
+        const res = await resRaw.text();
+        if (!resRaw.ok) {
+          alert(res);
+        } else {
+          const name = document.createElement("div");
+          const body = document.createElement("div");
+          const new_comment = document.createElement("div");
+          name.innerHTML = res + ":";
+          body.innerHTML = comment_body;
+          new_comment.appendChild(name);
+          new_comment.appendChild(body);
+          name.classList.add("me-2");
+          name.style.fontWeight = "bold";
+          new_comment.classList.add("d-flex", "m-2", "align-self-center");
+          addDeleteCommentBtn(new_comment);
+          comments.appendChild(new_comment);
+          comments.classList.remove("d-none");
+        }
+      });
+
+      // set comment form properties
+      comment_input_box.setAttribute("placeholder", "Add a comment...");
+      comment_input_box.setAttribute("type", "text");
+      comment_input_box.setAttribute("name", "comment");
+
+      post_btn.innerText = "post";
+      post_btn.setAttribute("type", "submit");
+
+      comment_form.appendChild(comment_input_box);
+      comment_form.appendChild(post_btn);
+    }
   }
 
   block.appendChild(block_top);
   block.appendChild(img);
   block.appendChild(comments);
+  block.appendChild(comment_form);
 
-  // Set classes
+  // Set all classes
   profile_img.classList.add("d-inline-block", "align-self-center", "m-2");
   author.classList.add("align-self-center", "my-1");
   bio.classList.add("align-self-center", "my-1");
@@ -189,8 +193,8 @@ async function renderBlock(image) {
 
   block_top.classList.add("d-flex");
   img.classList.add("img-fluid");
-  //comment0.classList.add("align-self-center", "m-2");
-  comments.classList.add("m-3");
+  comments.classList.add("m-1");
+  comment_form.classList.add("m-3");
   block.classList.add("block", "m-3", "bg-white", "border", "fade-in");
   return block;
 }
@@ -251,8 +255,6 @@ async function getImages() {
   }
   return images;
 }
-
-// fetch comments
 
 // Log out
 document.querySelector("#logout_link").addEventListener("click", utils.logout);

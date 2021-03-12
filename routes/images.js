@@ -70,7 +70,6 @@ router.post("/upload-image", async (req, res) => {
       username: req.session.username,
       url: "images/" + filename,
       number_liked: 0,
-      comments: {},
     };
     await updateDocuments(
       client,
@@ -103,29 +102,38 @@ router.post("/add-comment", async (req, res) => {
     });
 
     const usr = req.session.username;
-    await updateDocuments(client, "Images", image_document[0], {
-      $push: { comments: { [usr]: comment_body } },
-    });
-    //req.session.msg = "Comment Succesfully posted";
+    console.log(image_document[0].comments);
 
-    res.sendStatus(200);
+    await updateDocuments(client, "Images", image_document[0], {
+      $push: { comments: { username: usr, comment_body: comment_body } },
+    });
+    res.send(req.session.username);
   } catch (err) {
     console.log("Error ", err);
     res.status(400).send(err.name + ": " + err.message);
   }
 });
 
-// comment data endpoint
-router.get("/view-comment", async (req, res) => {
+router.delete("/delete-comment", async (req, res) => {
+  if (
+    req.session.username === undefined ||
+    req.session.username !== req.body.username
+  ) {
+    return res.sendStatus(401);
+  }
   try {
-    const image_document = await findDocuments(client, "Images", {
-      image_name: req.body.image_name,
+    const query = {
+      comments: {
+        $elemMatch: {
+          username: req.body.username,
+          comment_body: req.body.comment,
+        },
+      },
+    };
+    await updateDocuments(client, "Images", query, {
+      $pull: { comments: { comment_body: req.body.comment } },
     });
-
-    console.log("Loading comments");
-    console.log(image_document.comments);
-
-    res.send([image_document.comments]);
+    res.sendStatus(200);
   } catch (err) {
     console.log("Error ", err);
     res.status(400).send(err.name + ": " + err.message);
