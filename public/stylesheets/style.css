@@ -20,7 +20,7 @@ a:hover {
   color: grey;
 }
 
-.fa-plus:hover {
+.fa-plus:hover, .fa-heart:hover {
   color: #00B7FF;
   cursor: pointer;
 }
@@ -60,8 +60,8 @@ a:hover {
   width: 90%;
 }
 
-.input-group>.form-control {
-  width: 100%;
+.btn-outline-secondary:hover {
+  background-color: #00B7FF;
 }
 
 .del-icon {

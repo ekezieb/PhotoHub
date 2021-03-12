@@ -86,7 +86,7 @@ async function renderBlock(image) {
   block.style.padding = "3%";
 
   block.appendChild(img);
-  block.classList.add("col-lg-4", "fade-in");
+  block.classList.add("col-6", "col-sm-4", "fade-in");
 
   return block;
 }

@@ -129,56 +129,55 @@ function fadeIn(entries, observer) {
 }
 
 function addDeleteCommentBtn(parent) {
-  const text = document.createElement("div");
-  const del_btn = document.createElement("svg");
+  const del_btn = document.createElement("button");
   del_btn.classList.add(
-    "fas",
-    "fa-comment-alt",
+    "btn",
+    "bg-danger",
+    "d-none",
     "position-absolute",
-    "top-0",
-    "start-50",
-    "translate-middle",
-    "d-none"
+    "top-50",
+    "end-0",
+    "translate-middle-y",
+    "py-1",
+    "px-2"
   );
-  del_btn.style.fontSize = "1.5rem";
-  del_btn.style.color = "grey";
-  text.innerHTML = "del";
-  text.classList.add(
-    "position-absolute",
-    "top-0",
-    "start-50",
-    "translate-middle",
-    "d-none"
-  );
+  del_btn.style.fontSize = "0.8rem";
+  del_btn.innerText = "Delete";
+  del_btn.style.color = "white";
   parent.appendChild(del_btn);
-  // parent.appendChild(text);
 
-  parent.addEventListener("click", async () => {
+  parent.addEventListener("click", async function show() {
     parent.childNodes[2].classList.remove("d-none");
-    // parent.childNodes[3].classList.remove("d-none");
-    window.addEventListener("click", async (event) => {
-      const button = parent.lastElementChild.firstElementChild;
-      if (event.target !== button) {
-        button.classList.add("d-none");
-      } else {
-        const resRaw = await fetch("/delete-comment", {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: parent.childNodes[0].innerHTML,
-            comment: parent.childNodes[1].innerHTML,
-          }),
-        });
-        if (!resRaw) {
-          const res = await resRaw.text();
-          alert(res);
-        } else {
-          parent.classList.add("d-none");
-        }
-      }
-    });
+    setTimeout(() => {
+      window.addEventListener(
+        "click",
+        async (event) => {
+          const button = parent.childNodes[2];
+          if (event.target !== button) {
+            button.classList.add("d-none");
+            window.removeEventListener("click", show);
+          } else {
+            const resRaw = await fetch("/delete-comment", {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                username: parent.childNodes[0].innerHTML,
+                comment: parent.childNodes[1].innerHTML,
+              }),
+            });
+            if (!resRaw.ok) {
+              const res = await resRaw.text();
+              alert(res);
+            } else {
+              parent.classList.add("d-none");
+            }
+          }
+        },
+        { once: true }
+      );
+    }, 1);
   });
 }
 

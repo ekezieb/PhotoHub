@@ -1,12 +1,12 @@
 import * as utils from "./utils.js";
-import { addDeleteCommentBtn, fadeIn } from "./utils.js";
+import { addDeleteCommentBtn, fadeIn, getCookie } from "./utils.js";
 
 // On load
 // 1. log in
 // 2. fetch all users
 // 3. fetch information of images
 // 4. generate timeline by scrolling
-let users, images;
+let users, images, observer;
 utils.login().then(() => {
   utils
     .getAllUsers()
@@ -19,7 +19,7 @@ utils.login().then(() => {
           images = res;
         })
         .then(() => {
-          let observer = new IntersectionObserver(renderTimeline);
+          observer = new IntersectionObserver(renderTimeline);
           observer.observe(timeline);
         });
     });
@@ -62,27 +62,30 @@ async function renderBlock(image) {
     authorCol.appendChild(author);
     authorCol.appendChild(bio);
 
-    del_btn.addEventListener("click", async () => {
-      try {
-        const resRaw = await fetch("/delete-image", {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ url: image.url }),
-        });
-        if (!resRaw.ok) {
-          const res = await resRaw.text();
-          alert(res);
-        } else {
-          document.querySelector("#timeline").removeChild(block);
+    // if this image belongs to the user
+    if (image.username === getCookie("username")) {
+      del_btn.addEventListener("click", async () => {
+        try {
+          const resRaw = await fetch("/delete-image", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ url: image.url }),
+          });
+          if (!resRaw.ok) {
+            const res = await resRaw.text();
+            alert(res);
+          } else {
+            document.querySelector("#timeline").removeChild(block);
+          }
+        } catch (e) {
+          console.log("Err ", e);
         }
-      } catch (e) {
-        console.log("Err ", e);
-      }
-    });
+      });
+      del_btn.appendChild(del_icon);
+    }
 
-    del_btn.appendChild(del_icon);
     block_top.appendChild(profile_img);
     block_top.appendChild(authorCol);
     block_top.appendChild(del_btn);
@@ -99,13 +102,11 @@ async function renderBlock(image) {
       for (let comment of image.comments) {
         const new_comment = document.createElement("div");
         const name = document.createElement("div");
-        // TODO add delete function to the body
         const body = document.createElement("div");
         name.innerHTML = comment.username + ":";
         body.innerHTML = comment.comment_body;
         new_comment.appendChild(name);
         new_comment.appendChild(body);
-        name.classList.add("me-2");
         name.style.fontWeight = "bold";
         new_comment.classList.add(
           "d-flex",
@@ -113,6 +114,8 @@ async function renderBlock(image) {
           "align-self-center",
           "position-relative"
         );
+        body.classList.add("align-self-center");
+        name.classList.add("me-2", "align-self-center");
         if (utils.getCookie("username") === comment.username) {
           body.style.cursor = "pointer";
           addDeleteCommentBtn(new_comment);
@@ -156,9 +159,15 @@ async function renderBlock(image) {
           body.innerHTML = comment_body;
           new_comment.appendChild(name);
           new_comment.appendChild(body);
-          name.classList.add("me-2");
           name.style.fontWeight = "bold";
-          new_comment.classList.add("d-flex", "m-2", "align-self-center");
+          new_comment.classList.add(
+            "d-flex",
+            "m-2",
+            "align-self-center",
+            "position-relative"
+          );
+          body.classList.add("align-self-center");
+          name.classList.add("me-2", "align-self-center");
           addDeleteCommentBtn(new_comment);
           comments.appendChild(new_comment);
           comments.classList.remove("d-none");
@@ -190,11 +199,14 @@ async function renderBlock(image) {
   authorCol.classList.add("d-inline-block", "m-2", "me-auto");
   del_btn.classList.add("d-inline-block", "align-self-center", "m-3");
   del_icon.classList.add("fas", "fa-times", "del-icon");
-
   block_top.classList.add("d-flex");
+
   img.classList.add("img-fluid");
+
   comments.classList.add("m-1");
-  comment_form.classList.add("m-3");
+  comment_input_box.classList.add("form-control");
+  post_btn.classList.add("btn", "btn-outline-secondary");
+  comment_form.classList.add("m-3", "input-group");
   block.classList.add("block", "m-3", "bg-white", "border", "fade-in");
   return block;
 }
@@ -255,6 +267,27 @@ async function getImages() {
   }
   return images;
 }
+
+// filter timeline
+const filter_btn = document.querySelector("#filter_button");
+filter_btn.addEventListener("click", async () => {
+  const resRaw = await fetch("/get-my-images");
+  if (!resRaw.ok) {
+    const res = await resRaw.json();
+    alert(res);
+  } else {
+    timeline.innerHTML = "";
+    resRaw
+      .json()
+      .then((res) => {
+        block_counter = 0;
+        images = res;
+      })
+      .then(() => {
+        observer.observe(timeline);
+      });
+  }
+});
 
 // Log out
 document.querySelector("#logout_link").addEventListener("click", utils.logout);
