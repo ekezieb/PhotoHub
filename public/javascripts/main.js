@@ -123,25 +123,27 @@ async function renderBlock(image) {
     post_btn.innerText = "post";
     post_btn.setAttribute("type", "submit");
 
-    let rawcomments;
-    const resRaw = await fetch("/view-comment", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({}),
-    });
+    comments.addEventListener("submit", async () => {
+      let rawcomments;
+      const resRaw = await fetch("/view-comment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      });
 
-    if (!resRaw.ok) {
-      const res = await resRaw.text();
-      alert(res);
-    }
-    rawcomments = await resRaw.json();
+      if (!resRaw.ok) {
+        const res = await resRaw.text();
+        alert(res);
+      }
+      rawcomments = await resRaw.json();
 
-    rawcomments.forEach(function (comment) {
-      const newComment = document.createElement("div");
-      newComment.innerHTML = comment[0] + ": " + comment[1];
-      comment.appendChild(newComment);
+      rawcomments.forEach((comment) => {
+        const newComment = document.createElement("div");
+        newComment.innerHTML = comment[0] + ": " + comment[1];
+        comment.appendChild(newComment);
+      });
     });
 
     /*
