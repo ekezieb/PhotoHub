@@ -117,7 +117,7 @@ router.post("/add-comment", async (req, res) => {
 router.delete("/delete-comment", async (req, res) => {
   if (
     req.session.username === undefined ||
-    req.session.username !== req.body.username
+    req.session.username + ":" !== req.body.username
   ) {
     return res.sendStatus(401);
   }
@@ -125,7 +125,7 @@ router.delete("/delete-comment", async (req, res) => {
     const query = {
       comments: {
         $elemMatch: {
-          username: req.body.username,
+          username: req.session.username,
           comment_body: req.body.comment,
         },
       },
