@@ -201,7 +201,12 @@ async function renderBlock(image) {
   del_icon.classList.add("fas", "fa-times", "del-icon");
   block_top.classList.add("d-flex");
 
-  img.classList.add("img-fluid");
+  img.classList.add(
+    "img-fluid",
+    "position-relative",
+    "translate-middle-x",
+    "start-50"
+  );
 
   comments.classList.add("m-1");
   comment_input_box.classList.add("form-control");
