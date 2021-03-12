@@ -77,12 +77,19 @@ router.post("/upload-image", async (req, res) => {
       { _id: ObjectId(id) },
       { $set: data }
     );
-    file = await sharp(file.data);
-    file = await file.resize(1000);
-    await file.toFile(filepath, (err) => {
-      if (err) res.status(400).send(err.name + ": " + err.message);
-      else res.sendStatus(200);
-    });
+    if (image_type.ext === "gif") {
+      await file.mv(filepath, (err) => {
+        if (err) res.status(400).send(err.name + ": " + err.message);
+        else res.sendStatus(200);
+      });
+    } else {
+      file = await sharp(file.data);
+      file = await file.resize(1000);
+      await file.toFile(filepath, (err) => {
+        if (err) res.status(400).send(err.name + ": " + err.message);
+        else res.sendStatus(200);
+      });
+    }
   } catch (err) {
     console.log("Error ", err);
     res.status(400).send(err.name + ": " + err.message);

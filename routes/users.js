@@ -127,11 +127,7 @@ router.get("/logout", async (req, res) => {
 
 router.get("/get-all-users", async (req, res) => {
   try {
-    const { performance } = require("perf_hooks");
-    const t1 = performance.now();
     const users = await findDocuments(client, "Users", {});
-    const t2 = performance.now();
-    console.log("findDocuments", t2 - t1);
     if (users.length === 0) {
       res.status(404).send("User not found");
     } else {
@@ -178,7 +174,10 @@ router.put("/update-profile-photo", async (req, res) => {
   }
   file = req.files.profile_photo;
   const image_type = imageType(file.data);
-  if (image_type == null) {
+  if (
+    image_type == null ||
+    ["jpg", "png", "webp", "avif", "tiff"].indexOf(image_type.ext) < 0
+  ) {
     return res
       .status(415)
       .send("Unsupported Media Type.\nPlease upload an image.");
