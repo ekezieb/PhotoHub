@@ -147,6 +147,9 @@ router.put("/update-bio", async (req, res) => {
   if (req.session.username === undefined) {
     return res.status(401).send("Please log in first.");
   }
+  if (req.body.biography.length > 15) {
+    return res.status(403).send("The biography is too long.");
+  }
   try {
     console.log("Updating biography");
     await updateDocuments(

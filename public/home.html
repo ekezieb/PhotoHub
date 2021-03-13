@@ -89,7 +89,7 @@
         </div>
         <a class="col a_log align-self-center text-center" href="login.html">
           <img src="images/profile-photo/default.jpg" alt="profile_photo" id="profile_photo"
-               class="rounded-circle d-inline-block align-self-center profile-photo" height="35px" width="35px">
+               class="rounded-circle d-inline-block align-self-center profile-photo" height="32px" width="32px">
         </a>
       </div>
     </div>
@@ -139,24 +139,27 @@
   <div class="row" id="gallery"></div>
 </div>
 
-<aside class="fixed-top start-50 translate-middle-x mt-3 d-none" style="z-index: 1200; min-width: 450px; top: 56px"
+<!--UPDATE PROFILE-->
+<aside class="fixed-top start-50 translate-middle-x mt-3 d-none rounded-2" style="z-index: 1200; min-width: 400px;
+max-width:
+95vw; top: 56px"
        id="update_profile_window">
   <div class="form-background"></div>
-  <div class="rounded px-5 py-2">
+  <div class="rounded py-2">
     <!--UPDATE BIOGRAPHY-->
     <div class="my-5">
-      <h3>Update Biography</h3>
-      <form id="update_bio">
-        <label>New: <input type="text" name="bio" /></label>
-        <button type="submit">Update</button>
+      <h4 class="pb-1 text-center">Update Biography</h4>
+      <form id="update_bio" class="mx-auto py-2 input-group">
+        <input type="text" name="bio" class="form-control" />
+        <button type="submit" class="input-group-text">Update</button>
       </form>
     </div>
     <!--UPDATE PROFILE PHOTO-->
     <div class="my-5">
-      <h3>Update Profile Photo</h3>
-      <form id="update_profile_photo" method="post" enctype="multipart/form-data">
-        <label>Profile Photo: <input type="file" name="profile_photo" /></label>
-        <button type="submit">Update</button>
+      <h4 class="pb-1 text-center">Update Profile Photo</h4>
+      <form id="update_profile_photo" method="post" enctype="multipart/form-data" class="mx-auto py-2 input-group">
+        <input type="file" name="profile_photo" class="form-control" />
+        <button type="submit" class="input-group-text">Update</button>
       </form>
     </div>
   </div>
