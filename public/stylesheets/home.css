@@ -34,6 +34,18 @@ img #uploading_image {
   margin-left: 5%;
 }
 
+@media (min-width: 992px) {
+  .container {
+    max-width: 960px;
+  }
+}
+
+@media (min-width: 992px) {
+  .container {
+    max-width: 960px;
+  }
+}
+
 .form-control#upload {
   width: 90%;
   margin-left: 5%;
@@ -44,15 +56,6 @@ img #uploading_image {
 
 .btn-outline-secondary:hover {
   background-color: #00b7ff;
-}
-
-.del-icon {
-  font-size: 1.5em;
-  color: grey;
-}
-
-.del-icon:hover {
-  color: #00b7ff;
 }
 
 /* Animation */
@@ -68,36 +71,30 @@ img #uploading_image {
   transform: translateY(0);
 }
 
-.rightcontainer {
-  z-index: 1;
-}
-
-#author {
-  font-weight: bold;
-  font-family: "Noto Sans KR", sans-serif;
-}
-
-#bio_content {
-  font-size: xx-small;
-  font-family: "Noto Sans KR", sans-serif;
-}
-
 #username {
-  font-size: large;
+  font-size: xx-large;
   font-weight: bold;
 }
 
 #bio {
-  font-size: xx-small;
+  font-size: large;
 }
 
-#name_in_comments {
-  font-weight: bold;
-  font-family: "Merriweather", serif;
+#home_row {
+  width: 100%;
 }
 
-#text_in_comments {
+#profile_photo_large {
   cursor: pointer;
+}
 
-  font-family: "Merriweather", serif;
+a {
+  font-size: large;
+}
+
+#update_profile_window {
+  z-index: 1200;
+  min-width: 400px;
+  max-width: 95vw;
+  top: 56px;
 }

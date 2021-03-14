@@ -71,7 +71,8 @@
       integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="stylesheets/index.css" />
+    <link rel="stylesheet" href="stylesheets/main.css" />
+    <link rel="stylesheet" href="stylesheets/home.css" />
 
     <!--JS files-->
     <script type="module" src="javascripts/utils.js"></script>
@@ -80,9 +81,9 @@
 
   <body class="position-relative">
     <!--NAV-->
-    <nav class="navbar position-sticky" style="z-index: 3">
+    <nav class="navbar position-sticky">
       <div class="container px-lg-5">
-        <div class="row" style="width: 100%">
+        <div class="row" id="nav_content">
           <a class="col-6 col-md-3 navbar-brand" href="/">
             <img
               src="favicon/android-chrome-192x192.png"
@@ -120,38 +121,30 @@
     </nav>
 
     <!--UPLOAD-->
-    <div
-      id="shade"
-      class="d-none"
-      style="width: 100vw; height: 100vh; z-index: 2; position: fixed; top: 0"
-    ></div>
+    <div id="shade" class="d-none"></div>
     <aside
       class="position-fixed start-50 translate-middle-x mt-3 rounded d-none"
-      style="z-index: 1200; min-width: 400px; max-width: 95vw"
       id="upload_window"
     >
       <div class="form-background"></div>
       <div class="rounded py-2">
-        <form class="mx-auto py-2" id="upload_image_form" style="z-index: 4">
+        <form class="mx-auto py-2" id="upload_image_form">
           <h4 class="pb-1 text-center">Upload Image</h4>
           <input
             type="file"
             class="form-control my-2"
             name="image"
             id="upload"
-            style="width: 90%; margin-left: 5%"
           />
           <img
             class="img-thumbnail my-2 d-none"
             alt="thumbnail_image"
             src=""
             id="upload_image"
-            style="width: 90%; margin-left: 5%; max-height: 75vh"
           />
           <button
             class="btn btn-outline-secondary input-group-text text-center my-2"
             type="submit"
-            style="width: 90%; margin-left: 5%"
           >
             Submit
           </button>
@@ -162,7 +155,7 @@
     <!--CONTENT-->
     <div class="container px-5">
       <!--PROFILE-->
-      <div class="row align-self-center my-5" style="width: 100%">
+      <div class="row align-self-center my-5" id="home_row">
         <div class="col-0 col-md-2"></div>
         <div class="col-3 col-md-2 align-self-center">
           <img
@@ -170,37 +163,16 @@
             alt="profile_photo_large"
             id="profile_photo_large"
             class="img-fluid rounded-circle profile-photo"
-            style="cursor: pointer"
           />
         </div>
         <div class="col-7 col-md-3 align-self-center">
           <!--TODO adjust the font size by screen width-->
-          <div
-            class="heading my-1"
-            id="username"
-            style="font-size: xx-large; font-weight: bold"
-          >
-            Loading
-          </div>
-          <div class="subheading my-1" id="bio" style="font-size: large">
-            Loading
-          </div>
+          <div class="heading my-1" id="username">Loading</div>
+          <div class="subheading my-1" id="bio">Loading</div>
         </div>
         <div class="col-2 col-md-5 align-self-center">
-          <a
-            href="login.html"
-            class="subheading"
-            style="font-size: large"
-            id="login_link"
-            >login</a
-          >
-          <a
-            href=""
-            class="subheading d-none"
-            style="font-size: large"
-            id="logout_link"
-            >logout</a
-          >
+          <a href="login.html" class="subheading" id="login_link">login</a>
+          <a href="" class="subheading d-none" id="logout_link">logout</a>
         </div>
       </div>
       <hr />
@@ -211,7 +183,6 @@
     <!--UPDATE PROFILE-->
     <aside
       class="fixed-top start-50 translate-middle-x mt-3 d-none rounded-2"
-      style="z-index: 1200; min-width: 400px; max-width: 95vw; top: 56px"
       id="update_profile_window"
     >
       <div class="form-background"></div>
