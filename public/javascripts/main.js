@@ -56,9 +56,11 @@ async function renderBlock(image) {
     profile_img.classList.add("rounded-circle");
 
     author.innerHTML = image.username;
-    author.style.fontWeight = "bold";
+    author.setAttribute("id", "author");
+    //author.style.fontWeight = "bold";
     bio.innerHTML = user.biography;
-    bio.style.fontSize = "xx-small";
+    bio.setAttribute("id", "bio_content");
+    //bio.style.fontSize = "xx-small";
     authorCol.appendChild(author);
     authorCol.appendChild(bio);
 
@@ -107,7 +109,8 @@ async function renderBlock(image) {
         body.innerHTML = comment.comment_body;
         new_comment.appendChild(name);
         new_comment.appendChild(body);
-        name.style.fontWeight = "bold";
+
+        name.setAttribute("id", "name_in_comments");
         new_comment.classList.add(
           "d-flex",
           "m-2",
@@ -115,9 +118,9 @@ async function renderBlock(image) {
           "position-relative"
         );
         body.classList.add("align-self-center");
+        body.setAttribute("id", "text_in_comments");
         name.classList.add("me-2", "align-self-center");
         if (utils.getCookie("username") === comment.username) {
-          body.style.cursor = "pointer";
           addDeleteCommentBtn(new_comment);
         }
         comments.appendChild(new_comment);
@@ -159,7 +162,7 @@ async function renderBlock(image) {
           body.innerHTML = comment_body;
           new_comment.appendChild(name);
           new_comment.appendChild(body);
-          name.style.fontWeight = "bold";
+          //name.style.fontWeight = "bold";
           new_comment.classList.add(
             "d-flex",
             "m-2",
