@@ -28,7 +28,7 @@ router.post("/get-images", async (req, res) => {
 router.get("/get-my-images", async (req, res) => {
   const username = req.session.username;
   if (username === undefined) {
-    res.sendStatus(401);
+    res.status(401).send("Please log in first.");
   }
   try {
     console.log("Looking up my images");

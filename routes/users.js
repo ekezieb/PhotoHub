@@ -44,6 +44,7 @@ router.post("/login", async (req, res) => {
   }
   try {
     console.log("Logging in");
+    console.log(req.body);
     const query = {
       username: req.body.username,
       password: req.body.password,
@@ -58,9 +59,11 @@ router.post("/login", async (req, res) => {
       req.session.profile_photo = user.profile_photo;
       req.session.biography = user.biography;
       // for debug
-      res.cookie("username", result[0].username, {
-        maxAge: 86400000,
-      }); // 1 day
+      if (req.body.checked) {
+        res.cookie("username", result[0].username, {
+          maxAge: 86400000,
+        }); // 1 day
+      }
       res.sendStatus(200);
     }
   } catch (err) {
@@ -70,8 +73,8 @@ router.post("/login", async (req, res) => {
 });
 
 router.get("/get-user", async (req, res) => {
-  // for debug
   if (req.session.username === undefined) {
+    // once the browser has the cookie, the log status stays valid
     if (req.cookies.username === undefined) {
       return res.status(401).send("Please log in first.");
     }
@@ -105,17 +108,6 @@ router.get("/get-user", async (req, res) => {
     };
     res.send(data);
   }
-
-  //// session only
-  // if (req.session.username === undefined) {
-  //   return res.status(401).send("Please log in first.");
-  // }
-  // const user = {
-  //   username: req.session.username,
-  //   profile_photo: req.session.profile_photo,
-  //   biography: req.session.biography,
-  // };
-  // res.send(user);
 });
 
 router.get("/logout", async (req, res) => {

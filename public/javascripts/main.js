@@ -281,7 +281,7 @@ const filter_btn = document.querySelector("#filter_button");
 filter_btn.addEventListener("click", async () => {
   const resRaw = await fetch("/get-my-images");
   if (!resRaw.ok) {
-    const res = await resRaw.json();
+    const res = await resRaw.text();
     alert(res);
   } else {
     timeline.innerHTML = "";

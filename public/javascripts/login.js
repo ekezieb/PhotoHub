@@ -21,13 +21,18 @@ login_form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const username = login_form[0].value;
   const password = login_form[1].value;
+  const checked = document.querySelector(".form-check-input").checked;
   try {
     const resRaw = await fetch("/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username: username, password: password }),
+      body: JSON.stringify({
+        username: username,
+        password: password,
+        checked: checked,
+      }),
     });
     login_form.reset();
     if (!resRaw.ok) {
