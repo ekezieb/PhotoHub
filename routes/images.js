@@ -107,10 +107,7 @@ router.post("/add-comment", async (req, res) => {
     const image_document = await findDocuments(client, "Images", {
       image_name: req.body.image_name,
     });
-
     const usr = req.session.username;
-    console.log(image_document[0].comments);
-
     await updateDocuments(client, "Images", image_document[0], {
       $push: { comments: { username: usr, comment_body: comment_body } },
     });

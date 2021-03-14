@@ -48,6 +48,9 @@ async function login() {
     document.querySelectorAll(".a_log").forEach((value) => {
       value.setAttribute("href", "home.html");
     });
+    return undefined;
+  } else {
+    return await userRaw.text();
   }
 }
 

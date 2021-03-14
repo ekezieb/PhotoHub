@@ -1,5 +1,4 @@
 import * as utils from "./utils.js";
-import { addDeleteCommentBtn, fadeIn, getCookie } from "./utils.js";
 
 // On load
 // 1. log in
@@ -65,7 +64,7 @@ async function renderBlock(image) {
     authorCol.appendChild(bio);
 
     // if this image belongs to the user
-    if (image.username === getCookie("username")) {
+    if (image.username === utils.getCookie("username")) {
       del_btn.addEventListener("click", async () => {
         try {
           const resRaw = await fetch("/delete-image", {
@@ -121,7 +120,7 @@ async function renderBlock(image) {
         body.setAttribute("id", "text_in_comments");
         name.classList.add("me-2", "align-self-center");
         if (utils.getCookie("username") === comment.username) {
-          addDeleteCommentBtn(new_comment);
+          utils.addDeleteCommentBtn(new_comment);
         }
         comments.appendChild(new_comment);
       }
@@ -171,7 +170,7 @@ async function renderBlock(image) {
           );
           body.classList.add("align-self-center");
           name.classList.add("me-2", "align-self-center");
-          addDeleteCommentBtn(new_comment);
+          utils.addDeleteCommentBtn(new_comment);
           comments.appendChild(new_comment);
           comments.classList.remove("d-none");
         }
@@ -227,7 +226,9 @@ let flag;
 const timeline = document.querySelector("#timeline");
 async function renderTimeline(entries, observer) {
   flag = true;
-  const fadeObserver = new IntersectionObserver(fadeIn, { threshold: 0.1 });
+  const fadeObserver = new IntersectionObserver(utils.fadeIn, {
+    threshold: 0.1,
+  });
   for (let i = 0; i < 2; i++) {
     if (block_counter === images.length) {
       const prompt = document.createElement("div");

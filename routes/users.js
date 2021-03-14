@@ -44,12 +44,10 @@ router.post("/login", async (req, res) => {
   }
   try {
     console.log("Logging in");
-    console.log(req.body);
     const query = {
       username: req.body.username,
       password: req.body.password,
     };
-    console.log(query);
     const result = await findDocuments(client, "Users", query);
     if (result.length === 0) {
       res.status(404).send("Please provide a valid username and password.");
@@ -213,4 +211,5 @@ router.put("/update-profile-photo", async (req, res) => {
     res.status(400).send({ err: e });
   }
 });
+
 module.exports = router;

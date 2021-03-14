@@ -1,19 +1,23 @@
 import * as utils from "./utils.js";
-import { fadeIn } from "./utils.js";
 
 // On load
 // 1. log in
 // 2. fetch information of images
 // 3. generate image gallery
 let images;
-utils.login().then(() => {
-  getMyImages()
-    .then((res) => {
-      images = res;
-    })
-    .then(() => {
-      renderGallery().catch(console.log);
-    });
+utils.login().then((res) => {
+  if (res !== undefined) {
+    alert(res);
+    location.replace("/");
+  } else {
+    getMyImages()
+      .then((res) => {
+        images = res;
+      })
+      .then(() => {
+        renderGallery().catch(console.log);
+      });
+  }
 });
 
 // Update profile photo
@@ -94,7 +98,7 @@ async function renderBlock(image) {
 // render image gallery
 async function renderGallery() {
   const gallery = document.querySelector("#gallery");
-  const observer = new IntersectionObserver(fadeIn);
+  const observer = new IntersectionObserver(utils.fadeIn);
   for (let image of images) {
     const new_block = await renderBlock(image);
     gallery.appendChild(new_block);
@@ -130,11 +134,7 @@ function hideUpdateProfileWindow() {
 }
 
 // Log out
-document.querySelector("#logout_link").addEventListener("click", () => {
-  utils.logout().then(() => {
-    location.replace("/");
-  });
-});
+document.querySelector("#logout_link").addEventListener("click", utils.logout);
 
 // Set update profile window
 const update_profile_button = document.querySelector("#profile_photo_large");
