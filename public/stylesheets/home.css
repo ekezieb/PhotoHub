@@ -34,18 +34,6 @@ img #uploading_image {
   margin-left: 5%;
 }
 
-@media (min-width: 992px) {
-  .container {
-    max-width: 960px;
-  }
-}
-
-@media (min-width: 992px) {
-  .container {
-    max-width: 960px;
-  }
-}
-
 .form-control#upload {
   width: 90%;
   margin-left: 5%;
