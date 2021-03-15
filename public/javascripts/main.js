@@ -120,6 +120,7 @@ async function renderBlock(image) {
         body.setAttribute("id", "text_in_comments");
         name.classList.add("me-2", "align-self-center");
         if (utils.getCookie("username") === comment.username) {
+          body.style.cursor = "pointer";
           utils.addDeleteCommentBtn(new_comment);
         }
         comments.appendChild(new_comment);
@@ -161,7 +162,8 @@ async function renderBlock(image) {
           body.innerHTML = comment_body;
           new_comment.appendChild(name);
           new_comment.appendChild(body);
-          //name.style.fontWeight = "bold";
+          name.style.fontWeight = "bold";
+          body.style.cursor = "pointer";
           new_comment.classList.add(
             "d-flex",
             "m-2",
