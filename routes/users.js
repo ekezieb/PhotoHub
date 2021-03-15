@@ -61,6 +61,8 @@ router.post("/login", async (req, res) => {
         res.cookie("username", result[0].username, {
           maxAge: 86400000,
         }); // 1 day
+      } else {
+        res.cookie("username", result[0].username);
       }
       res.sendStatus(200);
     }
