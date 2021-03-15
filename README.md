@@ -42,15 +42,25 @@ https://photohub-qiqi-ziqing.herokuapp.com/
 ## Features
 - The timeline would display images that users uploaded reverse-chronologically.
 - By mouse scrolling, the timeline would load infinitely
+
   <img src="./assets/scroll.gif" alt="scroll"></img>
+  
 - Users could upload an image, or delete it.
+
   <img src="./assets/upload.gif" alt="upload" style="display: inline-block; width: 45%; margin-right: 5%"></img>
+  
   <img src="./assets/delete.gif" alt="delete" style="display: inline-block; width: 45%"></img>
+  
 - Users could post a comment, or delete it.
+
   <img src="./assets/comment.gif" alt="comment"></img>
+  
 - Users could filter the timeline to display their own posts only.
+
   <img src="./assets/filter.gif" alt="filter"></img>
+  
 - There would a gallery in users’ homepage.
+
   <img src="./assets/homepage.gif" alt="homepage"></img>
   
 ## Copyright
