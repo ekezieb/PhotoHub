@@ -1,6 +1,9 @@
 # PhotoHub
 
+## Project Objective
 Photohub is a platform that users can view, share and comment on their photos.
+
+We are going to use Express to develop the server, and implement AJAX communication to dynamically load the webpage.
 
 <img src="./assets/index.jpg" alt="index"></img>
 
@@ -34,8 +37,8 @@ https://photohub-qiqi-ziqing.herokuapp.com/
 - clone the repo 
 - run the following in the terminal
   ````
-  - npm install
-  - npm start
+  npm install
+  npm start
   ````
 - visit `localhost:3000` in the browser
 
