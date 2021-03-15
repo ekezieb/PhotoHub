@@ -44,6 +44,15 @@ a:hover {
   cursor: pointer;
 }
 
+#upload_image {
+  max-height: 60vh;
+  transform: translateX(-50%);
+  left: 50%;
+  position: relative;
+  padding-left: 5%;
+  padding-right: 5%;
+}
+
 @media (min-width: 992px) {
   .container {
     max-width: 960px;
