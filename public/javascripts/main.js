@@ -50,6 +50,7 @@ async function renderBlock(image) {
   // Set block top
   {
     profile_img.setAttribute("src", user.profile_photo);
+    profile_img.setAttribute("alt", "profile_photo");
     profile_img.setAttribute("width", "30px");
     profile_img.setAttribute("height", "30px");
     profile_img.classList.add("rounded-circle");

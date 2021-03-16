@@ -40,7 +40,9 @@ async function login() {
     const img = document.querySelector("#profile_photo");
     const imgL = document.querySelector("#profile_photo_large");
     img.setAttribute("src", user.profile_photo);
+    img.setAttribute("alt", "profile_photo");
     imgL.setAttribute("src", user.profile_photo);
+    imgL.setAttribute("alt", "profile_photo_large");
     name.innerHTML = user.username;
     des.innerHTML = user.biography;
     document.querySelector("#logout_link").classList.remove("d-none");
