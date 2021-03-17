@@ -1,5 +1,7 @@
 # PhotoHub
 
+README.md is very impressive. Very detailed and emplains the components of the project.
+
 ## Project Objective
 Photohub is a platform that users can view, share and comment on their photos.
 
